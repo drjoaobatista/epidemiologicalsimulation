@@ -10,12 +10,12 @@ import (
 )
 
 //Mundo estura para armazenar rede longa distância
-type mundo struct {
+type Mundo struct {
 	numeroCidades            int
 	tamanhoPopulaçãoQuadrada int
 	tamanhoPopulação         int
-	população                []pessoa
-	cidades                  []cidade
+	população                []Pessoa
+	cidades                  []Cidade
 	distâncias               [][]float32
 	data                     int
 	probabilidadeTroca       [][]float32
@@ -23,30 +23,30 @@ type mundo struct {
 	cidadeInicial            string
 }
 
-//init carrega do disco três arquivos com o nome da cidade e a população e as distâncias
-func (m *mundo) init(s Simulação) {
+//init carrega do disco três arquivos com o nome da Cidade e a população e as distâncias
+func (m *Mundo) init(s Simulação) {
 	var populacaoQuadrada int
 	var populaçãoTotal int
 	nomes, err := lerTexto(s.arquivoNomes)
 	if err != nil {
-		log.Fatalf("Erro:", err)
+		log.Fatalf("Erro: %v", err)
 	}
 	populaçãoCidade, err := lerTexto(s.arquivoPopulacao)
 	if err != nil {
-		log.Fatalf("Erro:", err)
+		log.Fatalf("Erro: %v", err)
 	}
-	m.cidades = make([]cidade, m.numeroCidades)
+	m.cidades = make([]Cidade, m.numeroCidades)
 	for i, nome := range nomes {
 		pop, err := strconv.ParseInt(populaçãoCidade[i], 10, 64)
 		if err != nil {
-			log.Fatalf("Erro:", err)
+			log.Fatalf("Erro: %v", err)
 		}
 		populaçãoTotal += int(pop)
 		populacaoQuadrada += m.cidades[i].init(nome, int(pop), uint8(i))
 	}
 	m.tamanhoPopulaçãoQuadrada = populacaoQuadrada
 	m.tamanhoPopulação = populaçãoTotal
-	m.população = make([]pessoa, m.tamanhoPopulaçãoQuadrada)
+	m.população = make([]Pessoa, m.tamanhoPopulaçãoQuadrada)
 	inicio := 0
 	for i := 0; i < m.numeroCidades; i++ {
 		fim := m.cidades[i].tamanhoPopulaçãoQuadrada
@@ -59,7 +59,7 @@ func (m *mundo) init(s Simulação) {
 }
 
 //initProbabilidadeContagio inicaça a função de porbabilidade de contagio
-func (m *mundo) initProbabilidadeContagio(f func(int) float32) {
+func (m *Mundo) initProbabilidadeContagio(f func(int) float32) {
 	p := make([]float32, 5)
 	for i := range p {
 		p[i] = f(i)
@@ -69,7 +69,7 @@ func (m *mundo) initProbabilidadeContagio(f func(int) float32) {
 
 //deslocaPessoas simula o deslocamento aleatório de pessoas
 // não pode ser paralelo por que usa a mesma memoria
-func (m *mundo) deslocaPessoas() {
+func (m *Mundo) deslocaPessoas() {
 	a := &m.população[rand.Intn(m.tamanhoPopulação)]
 	b := &m.população[rand.Intn(m.tamanhoPopulação)]
 	p := m.probabilidadeTroca[a.codCidade][b.codCidade]
@@ -101,8 +101,8 @@ func lerTexto(caminhoDoArquivo string) ([]string, error) {
 	return linhas, scanner.Err()
 }
 
-//contamine é uma funçao contamina uma pessoa localizada na cidade passada como parametro
-func (m *mundo) contamine() {
+//contamine é uma funçao contamina uma Pessoa localizada na Cidade passada como parametro
+func (m *Mundo) contamine() {
 	for i := range m.cidades {
 		if m.cidades[i].nome == m.cidadeInicial {
 			y := rand.Intn(int(m.cidades[i].tamanhoPopulação))
@@ -113,7 +113,7 @@ func (m *mundo) contamine() {
 }
 
 //umaVolta  execulta a simulação de 1 passo de Monte Carlo
-func (m *mundo) umaVolta(data *int) {
+func (m *Mundo) umaVolta(data *int) {
 	var numCPU = runtime.NumCPU()
 	var goroutines int
 	c := make(chan int, numCPU)

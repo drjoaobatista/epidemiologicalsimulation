@@ -9,14 +9,15 @@ type Simulação struct {
 	arquivoPopulacao  string
 	arquivoDistancias string
 	diasSimulado      int
-	f                 func(int) float32
+	// funcao de probabilidade da contaminaçao
+	f func(int) float32
 }
 
 //Simular é a rotina para iniciar a simulação
 func (s Simulação) Simular() string {
 	if s.verificarEntradas() {
 		fmt.Println("iniciado simulação")
-		var sergipe mundo
+		var sergipe Mundo
 		sergipe.init(s)
 		sergipe.contamine()
 		for i := 0; i < s.diasSimulado; i++ {

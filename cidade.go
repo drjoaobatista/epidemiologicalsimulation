@@ -2,24 +2,24 @@ package epidemiologicalsimulation
 
 import "math"
 
-//cidade rede mundo pequeno
-type cidade struct {
+//Cidade rede mundo pequeno
+type Cidade struct {
 	nome                     string
 	codCidade                uint8
 	tamanhoPopulação         int
 	tamanhoPopulaçãoQuadrada int
 	L                        int
 	erro                     float32
-	população                []pessoa
+	população                []Pessoa
 	contamiados              int
 	susceptivel              int
 	mortosImmunes            int
-	//numero de dias para a doença acabar matando ou imunizando a pessoa
+	//numero de dias para a doença acabar matando ou imunizando a Pessoa
 	ciclo int
 }
 
 //init cria uma matriz retangular de pessoas
-func (c *cidade) init(nome string, população int, cod uint8) int {
+func (c *Cidade) init(nome string, população int, cod uint8) int {
 	c.codCidade = cod
 	c.nome = nome
 	c.tamanhoPopulação = população
@@ -29,10 +29,10 @@ func (c *cidade) init(nome string, população int, cod uint8) int {
 	return int(c.L * c.L)
 }
 
-//vizinhos configura os viznhos de cada pessoa
+//vizinhos configura os viznhos de cada Pessoa
 // precisa ser chamado depois que a populaçao for alocada
 // configuarada para uma rede quadrada precisa configurara para variar as interações no futuro
-func (c *cidade) vizinhos() {
+func (c *Cidade) vizinhos() {
 	//s é o sucessor a é o antecessor
 	var a, s []int
 	for i := 0; i < c.L; i++ {
@@ -56,12 +56,12 @@ func (c *cidade) vizinhos() {
 
 }
 
-//propaga testa todas as pessoas da cidade  propagando a doença de acordo com a
+//propaga testa todas as pessoas da Cidade  propagando a doença de acordo com a
 //prbabilidade empirica de contaminação
 // essa é a rotina paralela
 // x numero de infectados no cilclo
 // y numero de mortos no ciclo
-func (c *cidade) propaga(data *int, probabilidade *[]float32, x chan int) {
+func (c *Cidade) propaga(data *int, probabilidade *[]float32, x chan int) {
 	var dx, dy int
 	for i := range c.população {
 		if c.população[i].estado == 0 {
@@ -80,7 +80,7 @@ func (c *cidade) propaga(data *int, probabilidade *[]float32, x chan int) {
 	x <- 0
 }
 
-func (c *cidade) setPessoa() {
+func (c *Cidade) setPessoa() {
 	for i := range c.população {
 		c.população[i].codCidade = c.codCidade
 	}
