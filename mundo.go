@@ -42,7 +42,7 @@ func (m *Mundo) init(s Simulação) {
 			log.Fatalf("Erro: %v", err)
 		}
 		populaçãoTotal += int(pop)
-		populacaoQuadrada += m.cidades[i].init(nome, int(pop), uint8(i))
+		populacaoQuadrada += m.cidades[i].init()
 	}
 	m.tamanhoPopulaçãoQuadrada = populacaoQuadrada
 	m.tamanhoPopulação = populaçãoTotal

@@ -19,11 +19,8 @@ type Cidade struct {
 }
 
 //init cria uma matriz retangular de pessoas
-func (c *Cidade) init(nome string, população int, cod uint8) int {
-	c.codCidade = cod
-	c.nome = nome
-	c.tamanhoPopulação = população
-	c.L = int(math.Round(math.Sqrt(float64(população))))
+func (c *Cidade) init() int {
+	c.L = int(math.Round(math.Sqrt(float64(c.tamanhoPopulação))))
 	c.erro = (float32(c.L*c.L) - float32(c.tamanhoPopulação)) / float32(c.tamanhoPopulação)
 
 	return int(c.L * c.L)
