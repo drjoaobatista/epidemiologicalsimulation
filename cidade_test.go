@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestInitCidade(t *testing.T) {
+func TestCidade(t *testing.T) {
 	var aracaju = Cidade{
 		nome:             "aracaju",
 		codCidade:        1,
@@ -30,5 +30,8 @@ func TestInitCidade(t *testing.T) {
 	if obtido != desejado {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
 	}
-
+	aracaju.população[0].estado = 1
+	aracaju.população[0].dia = 0
+	probabilidade := []float32{0.1, 0.12, 0.13, 0.14, 0.15, 0.16}
+	aracaju.propaga(1, probabilidade)
 }

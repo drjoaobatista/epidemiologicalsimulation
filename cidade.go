@@ -23,11 +23,12 @@ type Cidade struct {
 	ciclo int
 }
 
-//init cria uma matriz retangular de pessoas
+//init calcula os parametros básicos da cidade
 func (c *Cidade) init() int {
 	c.L = int(math.Round(math.Sqrt(float64(c.tamanhoPopulação))))
 	c.erro = (-float32(c.L*c.L) + float32(c.tamanhoPopulação)) / float32(c.tamanhoPopulação)
 	c.tamanhoPopulaçãoQuadrada = c.L * c.L
+	c.susceptivel = c.tamanhoPopulaçãoQuadrada
 	return int(c.L * c.L)
 }
 
@@ -68,7 +69,7 @@ func (c *Cidade) vizinhos() {
 // essa é a rotina paralela
 // x numero de infectados no cilclo
 // y numero de mortos no ciclo
-func (c *Cidade) propaga(data *int, probabilidade *[]float32, x chan int) {
+func (c *Cidade) propaga(data *int, probabilidade *[]float32) { //, x chan int) {
 	var dx, dy int
 
 	for i := range c.população {
@@ -84,7 +85,7 @@ func (c *Cidade) propaga(data *int, probabilidade *[]float32, x chan int) {
 	}
 	c.contamiados += dx
 	c.mortosImmunes += dy
-	x <- 0
+	//x <- 0
 }
 
 func (c *Cidade) setPessoa() {
