@@ -42,14 +42,21 @@ func (m *Mundo) init(s Simulação) {
 			log.Fatalf("Erro: %v", err)
 		}
 		populaçãoTotal += int(pop)
+		m.cidades[i] = Cidade{
+			tamanhoPopulação: int(pop),
+			codCidade:        uint8(i),
+			nome:             nome,
+		}
 		populacaoQuadrada += m.cidades[i].init()
 	}
 	m.tamanhoPopulaçãoQuadrada = populacaoQuadrada
 	m.tamanhoPopulação = populaçãoTotal
+	//criando a populacao mundial
 	m.população = make([]Pessoa, m.tamanhoPopulaçãoQuadrada)
 	inicio := 0
+	//distribuindo a populacao mundial
 	for i := 0; i < m.numeroCidades; i++ {
-		fim := m.cidades[i].tamanhoPopulaçãoQuadrada
+		fim := int(m.cidades[i].tamanhoPopulaçãoQuadrada) + inicio
 		m.cidades[i].população = m.população[inicio:fim]
 		m.cidades[i].vizinhos()
 		m.cidades[i].setPessoa()

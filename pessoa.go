@@ -31,7 +31,9 @@ func (p *Pessoa) contaminação(data *int, probabilidade *[]float32) uint8 {
 			return 1
 		}
 	}
+
 	return 0
+
 }
 
 func (p *Pessoa) numeroVizinhosContaminados() uint8 {
