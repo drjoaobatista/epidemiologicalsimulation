@@ -1,14 +1,17 @@
 package epidemiologicalsimulation
 
 import (
+	"runtime"
 	"testing"
 )
 
 func TestCidade(t *testing.T) {
+	//testando a inicializacao
 	var aracaju = Cidade{
 		nome:             "aracaju",
 		codCidade:        1,
 		tamanhoPopulação: 10010,
+		ciclo:            10,
 	}
 	aracaju.init()
 	L := 100
@@ -22,16 +25,34 @@ func TestCidade(t *testing.T) {
 	if float32(10.0/10010.0) != aracaju.erro {
 		t.Errorf("Erro no calculo do ERRO foi %v e o desejado foi %v", aracaju.erro, float32(10.0/10010.0))
 	}
+	// criando a populacao
 	aracaju.população = make([]Pessoa, aracaju.tamanhoPopulaçãoQuadrada)
+	// configurando as pessoas
 	aracaju.setPessoa()
+	// configurando os vizinhos numa rede quadrada
 	aracaju.vizinhos()
-	obtido := 0
-	desejado := 0
-	if obtido != desejado {
-		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
-	}
+
+	//contaminando primeira pessoa da cidade
 	aracaju.população[0].estado = 1
 	aracaju.população[0].dia = 0
-	probabilidade := []float32{0.1, 0.12, 0.13, 0.14, 0.15, 0.16}
-	aracaju.propaga(1, probabilidade)
+	aracaju.contaminados = 1
+
+	//contruindo um vetor de probabilidade de teste
+	probabilidade := []float32{1, 1, 1, 1, 1, 1}
+
+	//usando goruntimes
+	var numCPU = runtime.NumCPU()
+	canal := make(chan int, numCPU)
+	var data int
+	data = 1
+	go aracaju.propaga(&data, &probabilidade, canal)
+	<-canal
+
+	obtido := aracaju.contaminados
+	desejado := 2
+	if obtido != desejado {
+		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
+		t.Error(aracaju.população[1].vizinhos[0].vizinhos[0].contato(&data, &probabilidade))
+	}
+
 }

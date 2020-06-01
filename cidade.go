@@ -16,7 +16,7 @@ type Cidade struct {
 	L                        int
 	erro                     float32
 	população                []Pessoa
-	contamiados              int
+	contaminados             int
 	susceptivel              int
 	mortosImmunes            int
 	//numero de dias para a doença acabar matando ou imunizando a Pessoa
@@ -65,16 +65,15 @@ func (c *Cidade) vizinhos() {
 }
 
 //propaga testa todas as pessoas da Cidade  propagando a doença de acordo com a
-//prbabilidade empirica de contaminação
+//prbabilidade empirica de contato
 // essa é a rotina paralela
 // x numero de infectados no cilclo
 // y numero de mortos no ciclo
-func (c *Cidade) propaga(data *int, probabilidade *[]float32) { //, x chan int) {
+func (c *Cidade) propaga(data *int, probabilidade *[]float32, x chan int) {
 	var dx, dy int
-
 	for i := range c.população {
 		if c.população[i].estado == 0 {
-			dx += int(c.população[i].contaminação(data, probabilidade))
+			dx += int(c.população[i].contato(data, probabilidade))
 		} else {
 			if c.população[i].estado == 1 && (*data-c.população[i].dia) > c.ciclo {
 				c.população[i].estado = 2
@@ -83,13 +82,14 @@ func (c *Cidade) propaga(data *int, probabilidade *[]float32) { //, x chan int) 
 			}
 		}
 	}
-	c.contamiados += dx
+	c.contaminados += dx
 	c.mortosImmunes += dy
-	//x <- 0
+	x <- 0
 }
 
 func (c *Cidade) setPessoa() {
 	for i := range c.população {
 		c.população[i].codCidade = c.codCidade
+		c.população[i].estado = 0
 	}
 }
