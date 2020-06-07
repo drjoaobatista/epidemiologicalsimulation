@@ -2,10 +2,9 @@ package epidemiologicalsimulation
 
 import "testing"
 
-var aracaju mundo
-var corona simualao
+var covid Simulação
 
-func TestInitMundo(t *testing.T) {
+func TestSimulação(t *testing.T) {
 	obtido := 1
 	desejado := 1
 	if obtido != desejado {
@@ -13,7 +12,7 @@ func TestInitMundo(t *testing.T) {
 	}
 }
 
-func TestInitMundo(t *testing.T) {
+func TestInitSimulação(t *testing.T) {
 	obtido := 1
 	desejado := 1
 	if obtido != desejado {

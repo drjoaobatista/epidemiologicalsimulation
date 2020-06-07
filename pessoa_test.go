@@ -12,12 +12,12 @@ func TestContaminação(t *testing.T) {
 		}
 	}
 
-	for i := 0; i < 5; i++ {
+	for i := 0; i < len(cidade[0].vizinhos); i++ {
 		cidade[0].vizinhos[i] = &cidade[i+1]
 	}
 
 	obtido := cidade[0].numeroVizinhosContaminados()
-	desejado := uint8(5)
+	desejado := uint8(4)
 	if obtido != desejado {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
 	}

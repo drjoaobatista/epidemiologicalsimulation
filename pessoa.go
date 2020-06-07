@@ -11,7 +11,7 @@ type Pessoa struct {
 	//dia: da contato contado apartir do dia 0 inicio da contato apenas 1 no dia 0
 	dia int
 	//array de apontadores para pessoas vizinhas
-	vizinhos [4]*Pessoa
+	vizinhos [4]*Pessoa //#TODO: deixar número de vizinhos variaveis
 	//codCidade é o local onde a Pessoa está
 	codCidade uint8
 }
