@@ -1,7 +1,11 @@
 package epidemiologicalsimulation
 
 //padrão guardião
-import "fmt"
+import (
+	"fmt"
+	"log"
+	"os"
+)
 
 //Simulação parematros de entrada
 type Simulação struct {
@@ -18,7 +22,7 @@ func (s Simulação) Simular() string {
 	if s.verificarEntradas() {
 		fmt.Println("iniciado simulação")
 		var sergipe Mundo
-		sergipe.init(s)
+		sergipe.init()
 		sergipe.contamine()
 		for i := 0; i < s.diasSimulado; i++ {
 			sergipe.umaVolta(&i)
@@ -29,18 +33,41 @@ func (s Simulação) Simular() string {
 	return "erro"
 }
 
+//#TODO: trocar o print por loge aprender a usar o log
 func (s Simulação) verificarEntradas() bool {
 	if s.arquivoDistancias == "" {
-		fmt.Println("nome do arquivoDistancias")
+		fmt.Println("nome do arquivoDistancias ausente")
+
 		return false
+	} else {
+		_, err := os.Open(s.arquivoDistancias)
+		if err != nil {
+			log.Fatal(err)
+			return false
+		}
+
 	}
 	if s.arquivoNomes == "" {
 		fmt.Println("nome do arquivoNome")
 		return false
+	} else {
+		_, err := os.Open(s.arquivoDistancias)
+		if err != nil {
+			log.Fatal(err)
+			return false
+		}
+
 	}
 	if s.arquivoPopulacao == "" {
 		fmt.Println("nome do arquivoNome")
 		return false
+	} else {
+		_, err := os.Open(s.arquivoDistancias)
+		if err != nil {
+			log.Fatal(err)
+			return false
+		}
+
 	}
 	return true
 }

@@ -2,6 +2,7 @@ package epidemiologicalsimulation
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"math/rand"
 	"os"
@@ -9,8 +10,11 @@ import (
 	"strconv"
 )
 
+//#TODO: fundir mundo e Mundo
 //Mundo estura para armazenar rede longa distância
 type Mundo struct {
+	nomesCidades             []string
+	populaçãoCidades         []string
 	numeroCidades            int
 	tamanhoPopulaçãoQuadrada int
 	tamanhoPopulação         int
@@ -21,48 +25,84 @@ type Mundo struct {
 	probabilidadeTroca       [][]float32
 	probabilidadeContagio    []float32
 	cidadeInicial            string
+	arquivoNomesCidades      string
+	arquivoPopulaçãoCidades  string
+	arquivoDistanciasCidades string
+	TempoSimulação           int
+	// funcao de probabilidade da contaminaçao
+	f func(int) float32
 }
 
-//init carrega do disco três arquivos com o nome da Cidade e a população e as distâncias
-func (m *Mundo) init(s Simulação) {
-	var populacaoQuadrada int
-	var populaçãoTotal int
-	nomes, err := lerTexto(s.arquivoNomes)
-	if err != nil {
-		log.Fatalf("Erro: %v", err)
-	}
-	populaçãoCidade, err := lerTexto(s.arquivoPopulacao)
-	if err != nil {
-		log.Fatalf("Erro: %v", err)
-	}
-	m.cidades = make([]Cidade, m.numeroCidades)
-	for i, nome := range nomes {
-		pop, err := strconv.ParseInt(populaçãoCidade[i], 10, 64)
+func (m Mundo) carregaArquivos() bool {
+	if m.arquivoNomesCidades == "" {
+		fmt.Println("nome do arquivoNome")
+		return false
+	} else {
+		nomes, err := lerTexto(m.arquivoNomesCidades)
 		if err != nil {
 			log.Fatalf("Erro: %v", err)
 		}
-		populaçãoTotal += int(pop)
-		m.cidades[i] = Cidade{
-			tamanhoPopulação: int(pop),
-			codCidade:        uint8(i),
-			nome:             nome,
+		m.nomesCidades = nomes
+	}
+	if m.arquivoPopulaçãoCidades == "" {
+		fmt.Println("nome do arquivoNome")
+		return false
+	} else {
+		populaçãoCidade, err := lerTexto(m.arquivoPopulaçãoCidades)
+		if err != nil {
+			log.Fatalf("Erro: %v", err)
 		}
-		populacaoQuadrada += m.cidades[i].init()
+		m.populaçãoCidades = populaçãoCidade
 	}
-	m.tamanhoPopulaçãoQuadrada = populacaoQuadrada
-	m.tamanhoPopulação = populaçãoTotal
-	//criando a populacao mundial
-	m.população = make([]Pessoa, m.tamanhoPopulaçãoQuadrada)
-	inicio := 0
-	//distribuindo a populacao mundial
-	for i := 0; i < m.numeroCidades; i++ {
-		fim := int(m.cidades[i].tamanhoPopulaçãoQuadrada) + inicio
-		m.cidades[i].população = m.população[inicio:fim]
-		m.cidades[i].vizinhos()
-		m.cidades[i].setPessoa()
-		inicio = int(fim)
+	if m.arquivoDistanciasCidades == "" {
+		fmt.Println("nome do arquivoDistanciasCidades ausente")
+		return false
+	} else {
+		_, err := lerTexto(m.arquivoDistanciasCidades)
+		if err != nil {
+			log.Fatalf("Erro: %v", err)
+		}
+
 	}
-	m.initProbabilidadeContagio(s.f)
+
+	return true
+}
+
+//init carrega do disco três arquivos com o nome da Cidade e a população e as distâncias
+func (m *Mundo) init() bool {
+	if m.carregaArquivos() {
+		var populacaoQuadrada int
+		var populaçãoTotal int
+		m.cidades = make([]Cidade, m.numeroCidades)
+		for i, nome := range m.nomesCidades {
+			pop, err := strconv.ParseInt(m.populaçãoCidades[i], 10, 64)
+			if err != nil {
+				log.Fatalf("Erro: %v", err)
+			}
+			populaçãoTotal += int(pop)
+			m.cidades[i] = Cidade{
+				tamanhoPopulação: int(pop),
+				codCidade:        uint8(i),
+				nome:             nome,
+			}
+			populacaoQuadrada += m.cidades[i].init()
+		}
+		m.tamanhoPopulaçãoQuadrada = populacaoQuadrada
+		m.tamanhoPopulação = populaçãoTotal
+		//criando a populacao mundial
+		m.população = make([]Pessoa, m.tamanhoPopulaçãoQuadrada)
+		inicio := 0
+		//distribuindo a populacao mundial
+		for i := 0; i < m.numeroCidades; i++ {
+			fim := int(m.cidades[i].tamanhoPopulaçãoQuadrada) + inicio
+			m.cidades[i].população = m.população[inicio:fim]
+			m.cidades[i].vizinhos()
+			m.cidades[i].setPessoa()
+			inicio = int(fim)
+		}
+		m.initProbabilidadeContagio(m.f)
+	}
+	return true
 }
 
 //initProbabilidadeContagio inicaça a função de porbabilidade de contagio
@@ -97,13 +137,12 @@ func lerTexto(caminhoDoArquivo string) ([]string, error) {
 	// Garante que o arquivo sera fechado apos o uso
 	defer arquivo.Close()
 
-	// Cria um scanner que le cada linha do arquivo
+	// Cria um scanner que lê cada linha do arquivo
 	var linhas []string
 	scanner := bufio.NewScanner(arquivo)
 	for scanner.Scan() {
 		linhas = append(linhas, scanner.Text())
 	}
-
 	// Retorna as linhas lidas e um erro se ocorrer algum erro no scanner
 	return linhas, scanner.Err()
 }
@@ -119,7 +158,7 @@ func (m *Mundo) contamine() {
 	}
 }
 
-//umaVolta  execulta a simulação de 1 passo de Monte Carlo
+//umaVolta  execulta a Mundo de 1 passo de Monte Carlo
 func (m *Mundo) umaVolta(data *int) {
 	var numCPU = runtime.NumCPU()
 	var goroutines int
