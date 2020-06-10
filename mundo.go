@@ -32,6 +32,33 @@ type Mundo struct {
 	numeroVizinhos           int
 	// funcao de probabilidade da contaminaçao
 	f func(int) float32
+	// funcao de probabilidade da contaminaçao
+	fTroca func(float32) float32
+}
+
+//init carrega do disco três arquivos com o nome da Cidade e a população e as distâncias
+func (m *Mundo) init() bool {
+	m.carregaNomeCidades()
+	m.carregaPopulaçãoCidades()
+	m.carregaDistânciasCidades()
+	m.initProbabilidadeContagio()
+	m.initProbabilidadeTroca()
+	for i := 0; i < m.numeroCidades; i++ {
+		m.tamanhoPopulaçãoQuadrada += m.cidades[i].init()
+	}
+	//criando as pessoas do mundo
+	m.população = make([]Pessoa, m.tamanhoPopulaçãoQuadrada)
+
+	//distribuindo a populacao mundial nas cidades
+	inicio := 0
+	for i := 0; i < m.numeroCidades; i++ {
+		fim := int(m.cidades[i].tamanhoPopulaçãoQuadrada) + inicio
+		m.cidades[i].população = m.população[inicio:fim]
+		m.cidades[i].vizinhos()
+		m.cidades[i].setPessoa()
+		inicio = int(fim)
+	}
+	return true
 }
 
 func (m *Mundo) carregaNomeCidades() bool {
@@ -66,7 +93,6 @@ func (m *Mundo) carregaNomeCidades() bool {
 	return true
 }
 
-//-----------------------------------
 func (m *Mundo) carregaPopulaçãoCidades() bool {
 	if m.arquivoPopulaçãoCidades == "" {
 		fmt.Println("nome do arquivoPopulaçãoCidades")
@@ -107,7 +133,6 @@ func (m *Mundo) carregaPopulaçãoCidades() bool {
 	return true
 }
 
-//-----------------------------------
 func (m *Mundo) carregaDistânciasCidades() bool {
 	if m.arquivoDistanciasCidades == "" {
 		fmt.Println("nome do arquivoNome")
@@ -156,45 +181,40 @@ func (m *Mundo) carregaDistânciasCidades() bool {
 	return true
 }
 
-//init carrega do disco três arquivos com o nome da Cidade e a população e as distâncias
-func (m *Mundo) init() bool {
-
-	m.carregaNomeCidades()
-	m.carregaPopulaçãoCidades()
-	m.initProbabilidadeContagio()
-	for i := 0; i < m.numeroCidades; i++ {
-		m.tamanhoPopulaçãoQuadrada += m.cidades[i].init()
-	}
-	//criando as pessoas do mundo
-	m.população = make([]Pessoa, m.tamanhoPopulaçãoQuadrada)
-
-	//distribuindo a populacao mundial nas cidades
-	inicio := 0
-	for i := 0; i < m.numeroCidades; i++ {
-		fim := int(m.cidades[i].tamanhoPopulaçãoQuadrada) + inicio
-		m.cidades[i].população = m.população[inicio:fim]
-		m.cidades[i].vizinhos()
-		m.cidades[i].setPessoa()
-		inicio = int(fim)
-	}
-	return true
-	// m.initProbabilidadeContagio(m.f)
-
-}
-
 //initProbabilidadeContagio inicaça a função de porbabilidade de contagio
-func (m *Mundo) initProbabilidadeContagio() {
+func (m *Mundo) initProbabilidadeContagio() bool {
 	p := make([]float32, m.numeroVizinhos)
 	for i := range p {
 		p[i] = m.f(i)
 	}
 	m.probabilidadeContagio = make([]float32, m.numeroVizinhos)
 	copy(m.probabilidadeContagio, p)
+	return true
+}
+
+func (m *Mundo) initProbabilidadeTroca() bool {
+	if m.distâncias == nil {
+		m.carregaDistânciasCidades()
+	}
+	m.probabilidadeTroca = make([][]float32, m.numeroCidades)
+	for i := range m.probabilidadeTroca {
+		m.probabilidadeTroca[i] = make([]float32, m.numeroCidades)
+	}
+	for i := 0; i < m.numeroCidades; i++ {
+		for j := 0; j < m.numeroCidades; j++ {
+			m.probabilidadeTroca[i][j] = m.fTroca(m.distâncias[i][j])
+		}
+	}
+
+	return true
 }
 
 //deslocaPessoas simula o deslocamento aleatório de pessoas
 // não pode ser paralelo por que usa a mesma memoria
 func (m *Mundo) deslocaPessoas() {
+	if m.cidades == nil {
+		m.init()
+	}
 	a := &m.população[rand.Intn(m.tamanhoPopulação)]
 	b := &m.população[rand.Intn(m.tamanhoPopulação)]
 	p := m.probabilidadeTroca[a.codCidade][b.codCidade]

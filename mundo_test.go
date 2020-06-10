@@ -15,6 +15,9 @@ var sergipe = Mundo{
 	f: func(n int) float32 {
 		return float32(1 - math.Pow((1-0.1), float64(n)))
 	},
+	fTroca: func(x float32) float32 {
+		return float32(math.Exp(float64(-x)))
+	},
 }
 
 func TestLerTexto(t *testing.T) {
@@ -91,9 +94,33 @@ func TestInitMundo(t *testing.T) {
 }
 
 func TestInitProbabilidadeContagio(t *testing.T) {
-	sergipe.initProbabilidadeContagio()
+	obtido0 := sergipe.initProbabilidadeContagio()
 	obtido := sergipe.probabilidadeContagio[0]
 	desejado := float32(0.0)
+	if obtido != desejado {
+		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
+	}
+	if obtido0 != true {
+		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
+	}
+}
+
+func TestInitProbabilidadeTroca(t *testing.T) {
+	obtido0 := sergipe.initProbabilidadeTroca()
+	obtido := sergipe.probabilidadeTroca[0][0]
+	desejado := float32(1)
+	if obtido != desejado {
+		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
+	}
+	if obtido0 != true {
+		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
+	}
+}
+
+func TestDeslocaPessoas(t *testing.T) {
+	sergipe.deslocaPessoas()
+	obtido := 1
+	desejado := 1
 	if obtido != desejado {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
 	}
