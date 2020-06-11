@@ -252,6 +252,7 @@ func (m *Mundo) contamine() {
 			y := rand.Intn(int(m.cidades[i].tamanhoPopulação))
 			m.cidades[i].população[y].estado = 1
 			m.cidades[i].população[y].dia = 0
+			m.cidades[i].contaminados++
 		}
 	}
 }

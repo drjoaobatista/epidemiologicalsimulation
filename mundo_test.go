@@ -12,6 +12,7 @@ var sergipe = Mundo{
 	arquivoDistanciasCidades: "testedistancias.dat",
 	TempoSimulação:           10,
 	numeroVizinhos:           5,
+	cidadeInicial:            "Aracaju",
 	f: func(n int) float32 {
 		return float32(1 - math.Pow((1-0.1), float64(n)))
 	},
@@ -125,7 +126,15 @@ func TestDeslocaPessoas(t *testing.T) {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
 	}
 }
-
+func TestContamine(t *testing.T) {
+	sergipe.init()
+	sergipe.contamine()
+	obtido := sergipe.cidades[0].contaminados
+	desejado := 1
+	if obtido != desejado {
+		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
+	}
+}
 func TestMundo(t *testing.T) {
 	obtido := 1
 	desejado := 1
