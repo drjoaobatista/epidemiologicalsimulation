@@ -10,11 +10,12 @@ var sergipe = Mundo{
 	arquivoNomesCidades:      "testeNomes.dat",
 	arquivoPopulaçãoCidades:  "testepopulacao.dat",
 	arquivoDistanciasCidades: "testedistancias.dat",
-	TempoSimulação:           10,
+	tempoSimulação:           10,
 	numeroVizinhos:           5,
 	cidadeInicial:            "Aracaju",
+	ciclo:                    10,
 	f: func(n int) float32 {
-		return float32(1 - math.Pow((1-0.1), float64(n)))
+		return float32(1 - math.Pow((1-0.5), float64(n)))
 	},
 	fTroca: func(x float32) float32 {
 		return float32(math.Exp(float64(-x)))
@@ -47,6 +48,9 @@ func TestCarregaNomesCidades(t *testing.T) {
 	}
 	if sergipe.nomesCidades == nil {
 		t.Errorf("o valor obtido foi %v ", sergipe.nomesCidades)
+	}
+	if sergipe.cidades[0].nome != "Aracaju" {
+		t.Errorf("o valor obtido foi %v ", sergipe.cidades[0].nome)
 	}
 
 }
@@ -92,6 +96,10 @@ func TestInitMundo(t *testing.T) {
 	if obtido1 != desejado1 {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido3, desejado3)
 	}
+
+	if sergipe.cidades[0].nome != "Aracaju" {
+		t.Errorf("o valor obtido foi %v ", sergipe.cidades[0].nome)
+	}
 }
 
 func TestInitProbabilidadeContagio(t *testing.T) {
@@ -136,9 +144,12 @@ func TestContamine(t *testing.T) {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
 	}
 }
-func TestMundo(t *testing.T) {
-	obtido := 1
-	desejado := 1
+func TestUmDia(t *testing.T) {
+	sergipe.init()
+	sergipe.contamine()
+	sergipe.umDia()
+	obtido := sergipe.cidades[0].contaminados
+	desejado := 43
 	if obtido != desejado {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
 	}

@@ -28,8 +28,10 @@ type Mundo struct {
 	arquivoNomesCidades      string
 	arquivoPopulaçãoCidades  string
 	arquivoDistanciasCidades string
-	TempoSimulação           int
+	tempoSimulação           int
 	numeroVizinhos           int
+	ciclo                    int
+
 	// funcao de probabilidade da contaminaçao
 	f func(int) float32
 	// funcao de probabilidade da contaminaçao
@@ -85,10 +87,9 @@ func (m *Mundo) carregaNomeCidades() bool {
 		m.cidades = make([]Cidade, m.numeroCidades)
 	}
 	for i, nome := range m.nomesCidades {
-		m.cidades[i] = Cidade{
-			codCidade: uint8(i),
-			nome:      nome,
-		}
+		m.cidades[i].codCidade = uint8(i)
+		m.cidades[i].nome = nome
+		m.cidades[i].ciclo = m.ciclo
 	}
 	return true
 }
@@ -125,9 +126,7 @@ func (m *Mundo) carregaPopulaçãoCidades() bool {
 			}
 			m.populaçãoCidades[i] = int(pop)
 			m.tamanhoPopulação += int(pop)
-			m.cidades[i] = Cidade{
-				tamanhoPopulação: int(pop),
-			}
+			m.cidades[i].tamanhoPopulação = int(pop)
 		}
 	}
 	return true
@@ -257,13 +256,14 @@ func (m *Mundo) contamine() {
 	}
 }
 
-//umaVolta  execulta a Mundo de 1 passo de Monte Carlo
-func (m *Mundo) umaVolta(data *int) {
+//umDia  execulta a Mundo de 1 passo de Monte Carlo
+func (m *Mundo) umDia() {
 	var numCPU = runtime.NumCPU()
 	var goroutines int
+	m.data++
 	c := make(chan int, numCPU)
 	for i := 0; i < m.numeroCidades; i++ {
-		go m.cidades[i].propaga(data, &m.probabilidadeContagio, c)
+		go m.cidades[i].propaga(&m.data, &m.probabilidadeContagio, c)
 		goroutines++
 		if goroutines >= numCPU {
 			<-c

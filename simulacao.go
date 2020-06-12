@@ -25,7 +25,7 @@ func (s Simulação) Simular() string {
 		sergipe.init()
 		sergipe.contamine()
 		for i := 0; i < s.diasSimulado; i++ {
-			sergipe.umaVolta(&i)
+			sergipe.umDia()
 			sergipe.deslocaPessoas()
 		}
 		return "ok"
