@@ -132,6 +132,7 @@ func TestContamine(t *testing.T) {
 	obtido := sergipe.cidades[0].contaminados
 	desejado := 1
 	if obtido != desejado {
+		t.Errorf("o valor obtido foi %v e o desejado foi %v", sergipe.cidades[0].nome, desejado)
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
 	}
 }
