@@ -7,8 +7,9 @@ func TestContaminação(t *testing.T) {
 
 	for i := 0; i < 6; i++ {
 		cidade[i] = Pessoa{
-			estado: 1,
-			dia:    0,
+			estado:   1,
+			dia:      0,
+			vizinhos: make([]*Pessoa, 4),
 		}
 	}
 

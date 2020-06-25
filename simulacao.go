@@ -35,9 +35,9 @@ func (s Simulação) Simular() string {
 
 //#TODO: trocar o print por loge aprender a usar o log
 func (s Simulação) verificarEntradas() bool {
+
 	if s.arquivoDistancias == "" {
 		fmt.Println("nome do arquivoDistancias ausente")
-
 		return false
 	} else {
 		_, err := os.Open(s.arquivoDistancias)

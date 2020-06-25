@@ -16,7 +16,6 @@ type Mundo struct {
 	nomesCidades             []string
 	populaçãoCidades         []int
 	numeroCidades            int
-	tamanhoPopulaçãoQuadrada int
 	tamanhoPopulação         int
 	população                []Pessoa
 	cidades                  []Cidade
@@ -46,15 +45,15 @@ func (m *Mundo) init() bool {
 	m.initProbabilidadeContagio()
 	m.initProbabilidadeTroca()
 	for i := 0; i < m.numeroCidades; i++ {
-		m.tamanhoPopulaçãoQuadrada += m.cidades[i].init()
+		m.tamanhoPopulação += m.cidades[i].init()
 	}
 	//criando as pessoas do mundo
-	m.população = make([]Pessoa, m.tamanhoPopulaçãoQuadrada)
+	m.população = make([]Pessoa, m.tamanhoPopulação)
 
 	//distribuindo a populacao mundial nas cidades
 	inicio := 0
 	for i := 0; i < m.numeroCidades; i++ {
-		fim := int(m.cidades[i].tamanhoPopulaçãoQuadrada) + inicio
+		fim := int(m.cidades[i].tamanhoPopulação) + inicio
 		m.cidades[i].população = m.população[inicio:fim]
 		m.cidades[i].vizinhos()
 		m.cidades[i].setPessoa()
