@@ -9,11 +9,12 @@ import (
 func TestCidade(t *testing.T) {
 	//testando a inicializacao
 	var aracaju = Cidade{
-		nome:             "aracaju",
-		codCidade:        1,
-		tamanhoPopulação: 10010,
-		numeroVizinhos:   6,
-		ciclo:            10,
+		nome:                "aracaju",
+		codCidade:           1,
+		tamanhoPopulação:    10010,
+		numeroVizinhos:      6,
+		ciclo:               10,
+		numeroTrocaVizinhos: 100,
 	}
 	aracaju.init()
 	// criando a populacao
@@ -28,7 +29,7 @@ func TestCidade(t *testing.T) {
 	aracaju.contaminados = 1
 
 	//contruindo um vetor de probabilidade de teste
-	probabilidade := []float32{0, 0.3, 0.5, 0, 0, 0, 0, 0, 05}
+	probabilidade := []float32{0, 0.3, 0.5, 0.1, 0.1, 0.1, 0.1, 0.1, 0.5, 0.1}
 
 	//usando goruntimes
 	var numCPU = runtime.NumCPU()
@@ -49,8 +50,8 @@ func TestCidade(t *testing.T) {
 	}
 
 	obtido := aracaju.contaminados
-	desejado := 4
-	if obtido < desejado {
+	desejado := 10100
+	if obtido == desejado {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
 		t.Error(aracaju.população[1].vizinhos[0].vizinhos[0].contato(&data, &probabilidade))
 		t.Error(rand.Float32())

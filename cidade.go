@@ -4,18 +4,20 @@ package epidemiologicalsimulation
 
 import (
 	"fmt"
+	"math/rand"
 )
 
 //Cidade rede mundo pequeno unidimesional
 type Cidade struct {
-	nome             string
-	codCidade        uint8
-	tamanhoPopulação int
-	população        []Pessoa
-	contaminados     int
-	susceptivel      int
-	mortosImmunes    int
-	numeroVizinhos   int
+	nome                string
+	codCidade           uint8
+	tamanhoPopulação    int
+	população           []Pessoa
+	contaminados        int
+	susceptivel         int
+	mortosImmunes       int
+	numeroVizinhos      int
+	numeroTrocaVizinhos int
 	//numero de dias para a doença acabar matando ou imunizando a Pessoa
 	ciclo int
 }
@@ -32,6 +34,7 @@ func (c *Cidade) init() int {
 
 func (c *Cidade) vizinhos() {
 	//s é o sucessor a é o antecessor
+
 	if len(c.população) > 0 {
 		for i := range c.população {
 			for j := 1; j <= c.numeroVizinhos/2; j++ {
@@ -47,8 +50,16 @@ func (c *Cidade) vizinhos() {
 				}
 			}
 		}
+		for i := 0; i < c.numeroTrocaVizinhos; i++ {
+			k := rand.Intn(c.tamanhoPopulação)
+			l := rand.Intn(c.tamanhoPopulação)
+			m := rand.Intn(c.numeroVizinhos)
+			n := rand.Intn(c.numeroVizinhos)
+			c.população[k].vizinhos[m], c.população[l].vizinhos[n] = c.população[l].vizinhos[n], c.população[k].vizinhos[m]
+		}
+
 	} else {
-		fmt.Println("Erro: é necessário alocar a populacao ")
+		fmt.Println("Erro: é necessário alocar a população ")
 	}
 }
 
