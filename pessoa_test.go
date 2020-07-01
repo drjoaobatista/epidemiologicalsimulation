@@ -7,14 +7,14 @@ func TestContaminação(t *testing.T) {
 
 	for i := 0; i < 6; i++ {
 		cidade[i] = Pessoa{
-			estado:   1,
-			dia:      0,
-			vizinhos: make([]*Pessoa, 4),
+			Estado:   1,
+			Dia:      0,
+			Vizinhos: make([]*Pessoa, 4),
 		}
 	}
 
-	for i := 0; i < len(cidade[0].vizinhos); i++ {
-		cidade[0].vizinhos[i] = &cidade[i+1]
+	for i := 0; i < len(cidade[0].Vizinhos); i++ {
+		cidade[0].Vizinhos[i] = &cidade[i+1]
 	}
 
 	obtido := cidade[0].numeroVizinhosContaminados()

@@ -6,27 +6,27 @@ import (
 	"testing"
 )
 
-func TestCidade(t *testing.T) {
+func TestCidade(t *testing.T) { //#FIXME esse teste deveria dá errado mas dá correto.
 	//testando a inicializacao
 	var aracaju = Cidade{
-		nome:                "aracaju",
-		codCidade:           1,
-		tamanhoPopulação:    10010,
-		numeroVizinhos:      6,
-		ciclo:               10,
-		numeroTrocaVizinhos: 100,
+		Nome:                "aracaju",
+		CodCidade:           1,
+		TamanhoPopulação:    10010,
+		NumeroVizinhos:      6,
+		Ciclo:               10,
+		NumeroTrocaVizinhos: 100,
 	}
-	aracaju.init()
+	aracaju.Init()
 	// criando a populacao
-	aracaju.população = make([]Pessoa, aracaju.tamanhoPopulação)
+	aracaju.População = make([]Pessoa, aracaju.TamanhoPopulação)
 	// configurando as pessoas
 	aracaju.setPessoa()
-	// configurando os vizinhos numa rede quadrada
-	aracaju.vizinhos()
+	// configurando os Vizinhos numa rede quadrada
+	aracaju.SetVizinhos()
 	//contaminando primeira pessoa da cidade
-	aracaju.população[0].estado = 1
-	aracaju.população[0].dia = 0
-	aracaju.contaminados = 1
+	aracaju.População[0].Estado = 1
+	aracaju.População[0].Dia = 0
+	aracaju.Contaminados = 1
 
 	//contruindo um vetor de probabilidade de teste
 	probabilidade := []float32{0, 0.3, 0.5, 0.1, 0.1, 0.1, 0.1, 0.1, 0.5, 0.1}
@@ -49,11 +49,11 @@ func TestCidade(t *testing.T) {
 		<-canal
 	}
 
-	obtido := aracaju.contaminados
+	obtido := aracaju.Contaminados
 	desejado := 10100
 	if obtido == desejado {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
-		t.Error(aracaju.população[1].vizinhos[0].vizinhos[0].contato(&data, &probabilidade))
+		t.Error(aracaju.População[1].Vizinhos[0].Vizinhos[0].contato(&data, &probabilidade))
 		t.Error(rand.Float32())
 	}
 
@@ -62,23 +62,19 @@ func TestCidade(t *testing.T) {
 func TestCidade2(t *testing.T) {
 	//testando a inicializacao
 	var aracaju = Cidade{
-		nome:             "aracaju",
-		codCidade:        1,
-		tamanhoPopulação: 100,
-		numeroVizinhos:   6,
-		ciclo:            10,
+		Nome:             "aracaju",
+		CodCidade:        1,
+		TamanhoPopulação: 100,
+		NumeroVizinhos:   6,
+		Ciclo:            10,
 	}
-	aracaju.init()
 	// criando a populacao
-	aracaju.população = make([]Pessoa, aracaju.tamanhoPopulação)
-	// configurando as pessoas
-	aracaju.setPessoa()
-	// configurando os vizinhos numa rede quadrada
-	aracaju.vizinhos()
+	aracaju.População = make([]Pessoa, aracaju.TamanhoPopulação)
+	aracaju.Init()
 	//contaminando primeira pessoa da cidade
-	aracaju.população[0].estado = 1
-	aracaju.população[0].dia = 0
-	aracaju.contaminados = 1
+	aracaju.População[0].Estado = 1
+	aracaju.População[0].Dia = 0
+	aracaju.Contaminados = 1
 
 	//contruindo um vetor de probabilidade de teste
 	probabilidade := []float32{0, 0.3, 0.5, 0, 0, 0, 0, 0, 05}
@@ -101,11 +97,11 @@ func TestCidade2(t *testing.T) {
 		<-canal
 	}
 
-	obtido := aracaju.contaminados
+	obtido := aracaju.Contaminados
 	desejado := 4
 	if obtido < desejado {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
-		t.Error(aracaju.população[1].vizinhos[0].vizinhos[0].contato(&data, &probabilidade))
+		t.Error(aracaju.População[1].Vizinhos[0].Vizinhos[0].contato(&data, &probabilidade))
 		t.Error(rand.Float32())
 	}
 

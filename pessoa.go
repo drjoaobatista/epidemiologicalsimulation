@@ -4,30 +4,30 @@ import "math/rand"
 
 //Pessoa tipo usado para representar cada individuo do modelo
 type Pessoa struct {
-	// estado:susceptivel=0, contaminado=1, morto=2 ou imune=3, recuperado=4,
-	estado uint8
+	// Estado:susceptivel=0, contaminado=1, morto=2 ou imune=3, recuperado=4,
+	Estado uint8
 	// atestado: sim =1 nao = 0
-	examinada uint8
-	//dia: da contato contado apartir do dia 0 inicio da contato apenas 1 no dia 0
-	dia int
+	Examinada uint8
+	//Dia: da contato contado apartir do Dia 0 inicio da contato apenas 1 no Dia 0
+	Dia int
 	//array de apontadores para pessoas vizinhas
-	vizinhos []*Pessoa //#TODO: deixar número de vizinhos variaveis
-	//codCidade é o local onde a Pessoa está
-	codCidade uint8
+	Vizinhos []*Pessoa //#TODO: deixar número de Vizinhos variaveis
+	//CodCidade é o local onde a Pessoa está
+	CodCidade uint8
 }
 
 //contato execulta um passo markroviano
 func (p *Pessoa) contato(data *int, probabilidade *[]float32) uint8 {
 	var x uint8
-	for i := range p.vizinhos {
-		if p.vizinhos[i].estado == 1 {
+	for i := range p.Vizinhos {
+		if p.Vizinhos[i].Estado == 1 {
 			x++
 		}
 	}
 	if x > 0 {
 		if rand.Float32() < (*probabilidade)[x] {
-			p.estado = 1
-			p.dia = *data
+			p.Estado = 1
+			p.Dia = *data
 			return 1
 		}
 	}
@@ -36,9 +36,9 @@ func (p *Pessoa) contato(data *int, probabilidade *[]float32) uint8 {
 
 func (p *Pessoa) numeroVizinhosContaminados() uint8 {
 	var x uint8
-	for i := range p.vizinhos {
-		if p.vizinhos[i] != nil {
-			if p.vizinhos[i].estado == 1 {
+	for i := range p.Vizinhos {
+		if p.Vizinhos[i] != nil {
+			if p.Vizinhos[i].Estado == 1 {
 				x++
 			}
 		}

@@ -13,61 +13,61 @@ import (
 
 //Mundo estura para armazenar rede longa distância
 type Mundo struct {
-	nomesCidades             []string
-	populaçãoCidades         []int
-	numeroCidades            int
-	tamanhoPopulação         int
-	população                []Pessoa
-	cidades                  []Cidade
-	distâncias               [][]float32
-	data                     int
-	probabilidadeTroca       [][]float32
-	probabilidadeContagio    []float32
-	cidadeInicial            string
-	arquivoNomesCidades      string
-	arquivoPopulaçãoCidades  string
-	arquivoDistanciasCidades string
-	tempoSimulação           int
-	numeroVizinhos           int
-	ciclo                    int
+	NomesCidades             []string
+	PopulaçãoCidades         []int
+	NumeroCidades            int
+	TamanhoPopulação         int
+	População                []Pessoa
+	Cidades                  []Cidade
+	Distâncias               [][]float32
+	Data                     int
+	ProbabilidadeTroca       [][]float32
+	ProbabilidadeContagio    []float32
+	CidadeInicial            string
+	ArquivoNomesCidades      string
+	ArquivoPopulaçãoCidades  string
+	ArquivoDistanciasCidades string
+	TempoSimulação           int
+	NumeroVizinhos           int
+	Ciclo                    int
 
 	// funcao de probabilidade da contaminaçao
-	f func(int) float32
+	F func(int) float32
 	// funcao de probabilidade da contaminaçao
-	fTroca func(float32) float32
+	FTroca func(float32) float32
 }
 
-//init carrega do disco três arquivos com o nome da Cidade e a população e as distâncias
+//init carrega do disco três arquivos com o Nome da Cidade e a População e as Distâncias
 func (m *Mundo) init() bool {
 	m.carregaNomeCidades()
 	m.carregaPopulaçãoCidades()
 	m.carregaDistânciasCidades()
 	m.initProbabilidadeContagio()
 	m.initProbabilidadeTroca()
-	for i := 0; i < m.numeroCidades; i++ {
-		m.tamanhoPopulação += m.cidades[i].init()
+	for i := 0; i < m.NumeroCidades; i++ {
+		m.TamanhoPopulação += m.Cidades[i].Init()
 	}
 	//criando as pessoas do mundo
-	m.população = make([]Pessoa, m.tamanhoPopulação)
+	m.População = make([]Pessoa, m.TamanhoPopulação)
 
-	//distribuindo a populacao mundial nas cidades
+	//distribuindo a populacao mundial nas Cidades
 	inicio := 0
-	for i := 0; i < m.numeroCidades; i++ {
-		fim := int(m.cidades[i].tamanhoPopulação) + inicio
-		m.cidades[i].população = m.população[inicio:fim]
-		m.cidades[i].vizinhos()
-		m.cidades[i].setPessoa()
+	for i := 0; i < m.NumeroCidades; i++ {
+		fim := int(m.Cidades[i].TamanhoPopulação) + inicio
+		m.Cidades[i].População = m.População[inicio:fim]
+		m.Cidades[i].SetVizinhos()
+		m.Cidades[i].setPessoa()
 		inicio = int(fim)
 	}
 	return true
 }
 
 func (m *Mundo) carregaNomeCidades() bool {
-	if m.arquivoNomesCidades == "" {
-		fmt.Println("nome do arquivoNome")
+	if m.ArquivoNomesCidades == "" {
+		fmt.Println("Nome do arquivoNome")
 		return false
 	} else {
-		arquivo, err := os.Open(m.arquivoNomesCidades)
+		arquivo, err := os.Open(m.ArquivoNomesCidades)
 		// Caso tenha encontrado algum erro ao tentar abrir o arquivo retorne o erro encontrado
 		if err != nil {
 			log.Fatalf("Erro ler nomes: %v", err)
@@ -78,27 +78,27 @@ func (m *Mundo) carregaNomeCidades() bool {
 		// Cria um scanner que lê cada linha do arquivo
 		scanner := bufio.NewScanner(arquivo)
 		for scanner.Scan() {
-			m.nomesCidades = append(m.nomesCidades, scanner.Text())
+			m.NomesCidades = append(m.NomesCidades, scanner.Text())
 		}
 	}
-	if m.cidades == nil {
-		m.numeroCidades = len(m.nomesCidades)
-		m.cidades = make([]Cidade, m.numeroCidades)
+	if m.Cidades == nil {
+		m.NumeroCidades = len(m.NomesCidades)
+		m.Cidades = make([]Cidade, m.NumeroCidades)
 	}
-	for i, nome := range m.nomesCidades {
-		m.cidades[i].codCidade = uint8(i)
-		m.cidades[i].nome = nome
-		m.cidades[i].ciclo = m.ciclo
+	for i, Nome := range m.NomesCidades {
+		m.Cidades[i].CodCidade = uint8(i)
+		m.Cidades[i].Nome = Nome
+		m.Cidades[i].Ciclo = m.Ciclo
 	}
 	return true
 }
 
 func (m *Mundo) carregaPopulaçãoCidades() bool {
-	if m.arquivoPopulaçãoCidades == "" {
-		fmt.Println("nome do arquivoPopulaçãoCidades")
+	if m.ArquivoPopulaçãoCidades == "" {
+		fmt.Println("Nome do ArquivoPopulaçãoCidades")
 		return false
 	} else {
-		arquivo, err := os.Open(m.arquivoPopulaçãoCidades)
+		arquivo, err := os.Open(m.ArquivoPopulaçãoCidades)
 		// Caso tenha encontrado algum erro ao tentar abrir o arquivo retorne o erro encontrado
 		if err != nil {
 			log.Fatalf("Erro ler nomes: %v", err)
@@ -112,10 +112,10 @@ func (m *Mundo) carregaPopulaçãoCidades() bool {
 		for scanner.Scan() {
 			linhas = append(linhas, scanner.Text())
 		}
-		m.populaçãoCidades = make([]int, len(linhas))
-		if m.cidades == nil {
-			m.numeroCidades = len(linhas)
-			m.cidades = make([]Cidade, len(linhas))
+		m.PopulaçãoCidades = make([]int, len(linhas))
+		if m.Cidades == nil {
+			m.NumeroCidades = len(linhas)
+			m.Cidades = make([]Cidade, len(linhas))
 		}
 		for i := range linhas {
 			pop, err := strconv.ParseInt(linhas[i], 10, 64)
@@ -123,20 +123,20 @@ func (m *Mundo) carregaPopulaçãoCidades() bool {
 				log.Fatalf("Erro: %v", err)
 				return false
 			}
-			m.populaçãoCidades[i] = int(pop)
-			m.tamanhoPopulação += int(pop)
-			m.cidades[i].tamanhoPopulação = int(pop)
+			m.PopulaçãoCidades[i] = int(pop)
+			m.TamanhoPopulação += int(pop)
+			m.Cidades[i].TamanhoPopulação = int(pop)
 		}
 	}
 	return true
 }
 
 func (m *Mundo) carregaDistânciasCidades() bool {
-	if m.arquivoDistanciasCidades == "" {
-		fmt.Println("nome do arquivoNome")
+	if m.ArquivoDistanciasCidades == "" {
+		fmt.Println("Nome do arquivoNome")
 		return false
 	} else {
-		arquivo, err := os.Open(m.arquivoDistanciasCidades)
+		arquivo, err := os.Open(m.ArquivoDistanciasCidades)
 		// Caso tenha encontrado algum erro ao tentar abrir o arquivo retorne o erro encontrado
 		if err != nil {
 			log.Fatalf("Erro ler nomes: %v", err)
@@ -150,10 +150,10 @@ func (m *Mundo) carregaDistânciasCidades() bool {
 		for scanner.Scan() {
 			linhas = append(linhas, scanner.Text())
 		}
-		m.populaçãoCidades = make([]int, len(linhas))
-		if m.cidades == nil {
-			m.numeroCidades = int(math.Sqrt(float64(len(linhas))))
-			m.cidades = make([]Cidade, m.numeroCidades)
+		m.PopulaçãoCidades = make([]int, len(linhas))
+		if m.Cidades == nil {
+			m.NumeroCidades = int(math.Sqrt(float64(len(linhas))))
+			m.Cidades = make([]Cidade, m.NumeroCidades)
 		}
 		distância := make([]float32, len(linhas))
 		for i := range linhas {
@@ -164,14 +164,14 @@ func (m *Mundo) carregaDistânciasCidades() bool {
 			}
 			distância[i] = float32(dist)
 		}
-		m.distâncias = make([][]float32, m.numeroCidades)
-		for i := range m.distâncias {
-			m.distâncias[i] = make([]float32, m.numeroCidades)
+		m.Distâncias = make([][]float32, m.NumeroCidades)
+		for i := range m.Distâncias {
+			m.Distâncias[i] = make([]float32, m.NumeroCidades)
 		}
 		k := 0
-		for i := 0; i < m.numeroCidades; i++ {
-			for j := 0; j < m.numeroCidades; j++ {
-				m.distâncias[i][j] = distância[k]
+		for i := 0; i < m.NumeroCidades; i++ {
+			for j := 0; j < m.NumeroCidades; j++ {
+				m.Distâncias[i][j] = distância[k]
 				k++
 			}
 		}
@@ -181,26 +181,26 @@ func (m *Mundo) carregaDistânciasCidades() bool {
 
 //initProbabilidadeContagio inicaça a função de porbabilidade de contagio
 func (m *Mundo) initProbabilidadeContagio() bool {
-	p := make([]float32, m.numeroVizinhos)
+	p := make([]float32, m.NumeroVizinhos)
 	for i := range p {
-		p[i] = m.f(i)
+		p[i] = m.F(i)
 	}
-	m.probabilidadeContagio = make([]float32, m.numeroVizinhos)
-	copy(m.probabilidadeContagio, p)
+	m.ProbabilidadeContagio = make([]float32, m.NumeroVizinhos)
+	copy(m.ProbabilidadeContagio, p)
 	return true
 }
 
 func (m *Mundo) initProbabilidadeTroca() bool {
-	if m.distâncias == nil {
+	if m.Distâncias == nil {
 		m.carregaDistânciasCidades()
 	}
-	m.probabilidadeTroca = make([][]float32, m.numeroCidades)
-	for i := range m.probabilidadeTroca {
-		m.probabilidadeTroca[i] = make([]float32, m.numeroCidades)
+	m.ProbabilidadeTroca = make([][]float32, m.NumeroCidades)
+	for i := range m.ProbabilidadeTroca {
+		m.ProbabilidadeTroca[i] = make([]float32, m.NumeroCidades)
 	}
-	for i := 0; i < m.numeroCidades; i++ {
-		for j := 0; j < m.numeroCidades; j++ {
-			m.probabilidadeTroca[i][j] = m.fTroca(m.distâncias[i][j])
+	for i := 0; i < m.NumeroCidades; i++ {
+		for j := 0; j < m.NumeroCidades; j++ {
+			m.ProbabilidadeTroca[i][j] = m.FTroca(m.Distâncias[i][j])
 		}
 	}
 
@@ -210,15 +210,15 @@ func (m *Mundo) initProbabilidadeTroca() bool {
 //deslocaPessoas simula o deslocamento aleatório de pessoas
 // não pode ser paralelo por que usa a mesma memoria
 func (m *Mundo) deslocaPessoas() {
-	if m.cidades == nil {
+	if m.Cidades == nil {
 		m.init()
 	}
-	a := &m.população[rand.Intn(m.tamanhoPopulação)]
-	b := &m.população[rand.Intn(m.tamanhoPopulação)]
-	p := m.probabilidadeTroca[a.codCidade][b.codCidade]
+	a := &m.População[rand.Intn(m.TamanhoPopulação)]
+	b := &m.População[rand.Intn(m.TamanhoPopulação)]
+	p := m.ProbabilidadeTroca[a.CodCidade][b.CodCidade]
 	if rand.Float32() < p {
-		a.estado, b.estado = b.estado, a.estado
-		a.dia, b.dia = b.dia, a.dia
+		a.Estado, b.Estado = b.Estado, a.Estado
+		a.Dia, b.Dia = b.Dia, a.Dia
 	}
 }
 
@@ -245,12 +245,12 @@ func lerTexto(caminhoDoArquivo string) ([]string, error) {
 
 //contamine é uma funçao contamina uma Pessoa localizada na Cidade passada como parametro
 func (m *Mundo) contamine() {
-	for i := range m.cidades {
-		if m.cidades[i].nome == m.cidadeInicial {
-			y := rand.Intn(int(m.cidades[i].tamanhoPopulação))
-			m.cidades[i].população[y].estado = 1
-			m.cidades[i].população[y].dia = 0
-			m.cidades[i].contaminados++
+	for i := range m.Cidades {
+		if m.Cidades[i].Nome == m.CidadeInicial {
+			y := rand.Intn(int(m.Cidades[i].TamanhoPopulação))
+			m.Cidades[i].População[y].Estado = 1
+			m.Cidades[i].População[y].Dia = 0
+			m.Cidades[i].Contaminados++
 		}
 	}
 }
@@ -259,10 +259,10 @@ func (m *Mundo) contamine() {
 func (m *Mundo) umDia() {
 	var numCPU = runtime.NumCPU()
 	var goroutines int
-	m.data++
+	m.Data++
 	c := make(chan int, numCPU)
-	for i := 0; i < m.numeroCidades; i++ {
-		go m.cidades[i].propaga(&m.data, &m.probabilidadeContagio, c)
+	for i := 0; i < m.NumeroCidades; i++ {
+		go m.Cidades[i].propaga(&m.Data, &m.ProbabilidadeContagio, c)
 		goroutines++
 		if goroutines >= numCPU {
 			<-c

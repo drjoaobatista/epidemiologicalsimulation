@@ -7,17 +7,17 @@ import (
 )
 
 var sergipe = Mundo{
-	arquivoNomesCidades:      "testeNomes.dat",
-	arquivoPopulaçãoCidades:  "testepopulacao.dat",
-	arquivoDistanciasCidades: "testedistancias.dat",
-	tempoSimulação:           10,
-	numeroVizinhos:           5,
-	cidadeInicial:            "Aracaju",
-	ciclo:                    10,
-	f: func(n int) float32 {
+	ArquivoNomesCidades:      "testeNomes.dat",
+	ArquivoPopulaçãoCidades:  "testepopulacao.dat",
+	ArquivoDistanciasCidades: "testedistancias.dat",
+	TempoSimulação:           10,
+	NumeroVizinhos:           5,
+	CidadeInicial:            "Aracaju",
+	Ciclo:                    10,
+	F: func(n int) float32 {
 		return float32(1 - math.Pow((1-0.5), float64(n)))
 	},
-	fTroca: func(x float32) float32 {
+	FTroca: func(x float32) float32 {
 		return float32(math.Exp(float64(-x)))
 	},
 }
@@ -46,11 +46,11 @@ func TestCarregaNomesCidades(t *testing.T) {
 	if obtido != desejado {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
 	}
-	if sergipe.nomesCidades == nil {
-		t.Errorf("o valor obtido foi %v ", sergipe.nomesCidades)
+	if sergipe.NomesCidades == nil {
+		t.Errorf("o valor obtido foi %v ", sergipe.NomesCidades)
 	}
-	if sergipe.cidades[0].nome != "Aracaju" {
-		t.Errorf("o valor obtido foi %v ", sergipe.cidades[0].nome)
+	if sergipe.Cidades[0].Nome != "Aracaju" {
+		t.Errorf("o valor obtido foi %v ", sergipe.Cidades[0].Nome)
 	}
 
 }
@@ -79,32 +79,32 @@ func TestInitMundo(t *testing.T) {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
 	}
 
-	obtido2 := sergipe.numeroCidades
+	obtido2 := sergipe.NumeroCidades
 	desejado2 := 2
 	if obtido2 != desejado2 {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido2, desejado2)
 	}
 
-	obtido1 := sergipe.cidades[0].tamanhoPopulação
+	obtido1 := sergipe.Cidades[0].TamanhoPopulação
 	desejado1 := 10000
 	if obtido1 != desejado1 {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido1, desejado1)
 	}
 
-	obtido3 := sergipe.cidades[1].tamanhoPopulação
+	obtido3 := sergipe.Cidades[1].TamanhoPopulação
 	desejado3 := 1000
 	if obtido1 != desejado1 {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido3, desejado3)
 	}
 
-	if sergipe.cidades[0].nome != "Aracaju" {
-		t.Errorf("o valor obtido foi %v ", sergipe.cidades[0].nome)
+	if sergipe.Cidades[0].Nome != "Aracaju" {
+		t.Errorf("o valor obtido foi %v ", sergipe.Cidades[0].Nome)
 	}
 }
 
 func TestInitProbabilidadeContagio(t *testing.T) {
 	obtido0 := sergipe.initProbabilidadeContagio()
-	obtido := sergipe.probabilidadeContagio[0]
+	obtido := sergipe.ProbabilidadeContagio[0]
 	desejado := float32(0.0)
 	if obtido != desejado {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
@@ -116,7 +116,7 @@ func TestInitProbabilidadeContagio(t *testing.T) {
 
 func TestInitProbabilidadeTroca(t *testing.T) {
 	obtido0 := sergipe.initProbabilidadeTroca()
-	obtido := sergipe.probabilidadeTroca[0][0]
+	obtido := sergipe.ProbabilidadeTroca[0][0]
 	desejado := float32(1)
 	if obtido != desejado {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
@@ -137,10 +137,10 @@ func TestDeslocaPessoas(t *testing.T) {
 func TestContamine(t *testing.T) {
 	sergipe.init()
 	sergipe.contamine()
-	obtido := sergipe.cidades[0].contaminados
+	obtido := sergipe.Cidades[0].Contaminados
 	desejado := 1
 	if obtido != desejado {
-		t.Errorf("o valor obtido foi %v e o desejado foi %v", sergipe.cidades[0].nome, desejado)
+		t.Errorf("o valor obtido foi %v e o desejado foi %v", sergipe.Cidades[0].Nome, desejado)
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
 	}
 }
@@ -148,7 +148,7 @@ func TestUmDia(t *testing.T) {
 	sergipe.init()
 	sergipe.contamine()
 	sergipe.umDia()
-	obtido := sergipe.cidades[0].contaminados
+	obtido := sergipe.Cidades[0].Contaminados
 	desejado := 43
 	if obtido != desejado {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)

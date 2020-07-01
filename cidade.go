@@ -1,6 +1,6 @@
 package epidemiologicalsimulation
 
-//TODO misturar as interações criar n vizinhos
+//TODO misturar as interações criar n Vizinhos
 
 import (
 	"fmt"
@@ -9,57 +9,60 @@ import (
 
 //Cidade rede mundo pequeno unidimesional
 type Cidade struct {
-	nome                string
-	codCidade           uint8
-	tamanhoPopulação    int
-	população           []Pessoa
-	contaminados        int
-	susceptivel         int
-	mortosImmunes       int
-	numeroVizinhos      int
-	numeroTrocaVizinhos int
+	Nome                string
+	CodCidade           uint8
+	TamanhoPopulação    int
+	População           []Pessoa
+	Contaminados        int
+	Susceptivel         int
+	MortosImmunes       int
+	NumeroVizinhos      int
+	NumeroTrocaVizinhos int
+	TaxaImunidades      float32
 	//numero de dias para a doença acabar matando ou imunizando a Pessoa
-	ciclo int
+	Ciclo int
 }
 
-//init calcula os parametros básicos da cidade
-func (c *Cidade) init() int {
-	c.susceptivel = c.tamanhoPopulação
-	return c.tamanhoPopulação
+//Init calcula os parametros básicos da cidade
+func (c *Cidade) Init() int {
+	c.setPessoa()
+	c.SetVizinhos()
+	c.Susceptivel = c.TamanhoPopulação
+	return c.TamanhoPopulação
 }
 
-//vizinhos configura os vizinhos de cada Pessoa
-// precisa ser chamado depois que a população for alocada
+//Vizinhos configura os Vizinhos de cada Pessoa
+// precisa ser chamado depois que a População for alocada
 // configurada para uma rede quadrada precisa configurar para variar as interações no futuro
 
-func (c *Cidade) vizinhos() {
+func (c *Cidade) SetVizinhos() {
 	//s é o sucessor a é o antecessor
 
-	if len(c.população) > 0 {
-		for i := range c.população {
-			for j := 1; j <= c.numeroVizinhos/2; j++ {
+	if len(c.População) > 0 {
+		for i := range c.População {
+			for j := 1; j <= c.NumeroVizinhos/2; j++ {
 				if i-j < 0 {
-					c.população[i].vizinhos[j-1] = &c.população[c.tamanhoPopulação+(i-j)]
+					c.População[i].Vizinhos[j-1] = &c.População[c.TamanhoPopulação+(i-j)]
 				} else {
-					c.população[i].vizinhos[j-1] = &c.população[i-j]
+					c.População[i].Vizinhos[j-1] = &c.População[i-j]
 				}
-				if i+j >= c.tamanhoPopulação {
-					c.população[i].vizinhos[j-1+c.numeroVizinhos/2] = &c.população[-c.tamanhoPopulação+(i+j)]
+				if i+j >= c.TamanhoPopulação {
+					c.População[i].Vizinhos[j-1+c.NumeroVizinhos/2] = &c.População[-c.TamanhoPopulação+(i+j)]
 				} else {
-					c.população[i].vizinhos[j-1+c.numeroVizinhos/2] = &c.população[i+j]
+					c.População[i].Vizinhos[j-1+c.NumeroVizinhos/2] = &c.População[i+j]
 				}
 			}
 		}
-		for i := 0; i < c.numeroTrocaVizinhos; i++ {
-			k := rand.Intn(c.tamanhoPopulação)
-			l := rand.Intn(c.tamanhoPopulação)
-			m := rand.Intn(c.numeroVizinhos)
-			n := rand.Intn(c.numeroVizinhos)
-			c.população[k].vizinhos[m], c.população[l].vizinhos[n] = c.população[l].vizinhos[n], c.população[k].vizinhos[m]
+		for i := 0; i < c.NumeroTrocaVizinhos; i++ {
+			k := rand.Intn(c.TamanhoPopulação)
+			l := rand.Intn(c.TamanhoPopulação)
+			m := rand.Intn(c.NumeroVizinhos)
+			n := rand.Intn(c.NumeroVizinhos)
+			c.População[k].Vizinhos[m], c.População[l].Vizinhos[n] = c.População[l].Vizinhos[n], c.População[k].Vizinhos[m]
 		}
 
 	} else {
-		fmt.Println("Erro: é necessário alocar a população ")
+		fmt.Println("Erro: é necessário alocar a População ")
 	}
 }
 
@@ -67,29 +70,51 @@ func (c *Cidade) vizinhos() {
 //prbabilidade empirica de contato
 // essa é a rotina paralela
 // x numero de infectados no cilclo
-// y numero de mortos no ciclo
+// y numero de mortos no Ciclo
 func (c *Cidade) propaga(data *int, probabilidade *[]float32, x chan int) {
 	var dx, dy int
-	for i := range c.população {
-		if c.população[i].estado == 0 {
-			dx += int(c.população[i].contato(data, probabilidade))
+	for i := range c.População {
+		if c.População[i].Estado == 0 {
+			dx += int(c.População[i].contato(data, probabilidade))
 		} else {
-			if c.população[i].estado == 1 && (*data-c.população[i].dia) > c.ciclo {
-				c.população[i].estado = 2
+			if c.População[i].Estado == 1 && (*data-c.População[i].Dia) > c.Ciclo {
+				c.População[i].Estado = 2
 				dx--
 				dy++
 			}
 		}
 	}
-	c.contaminados += dx
-	c.mortosImmunes += dy
+	c.Contaminados += dx
+	c.MortosImmunes += dy
 	x <- 0
 }
 
+func (c *Cidade) Propaga(data *int, probabilidade *[]float32) {
+	var dx, dy int
+	for i := range c.População {
+		if c.População[i].Estado == 0 {
+			dx += int(c.População[i].contato(data, probabilidade))
+		} else {
+			if c.População[i].Estado == 1 && (*data-c.População[i].Dia) > c.Ciclo {
+				c.População[i].Estado = 0
+				dx--
+				dy++
+			}
+		}
+	}
+	c.Contaminados += dx
+	c.MortosImmunes += dy
+}
+
 func (c *Cidade) setPessoa() {
-	for i := range c.população {
-		c.população[i].codCidade = c.codCidade
-		c.população[i].estado = 0
-		c.população[i].vizinhos = make([]*Pessoa, c.numeroVizinhos)
+	for i := range c.População {
+		c.População[i].CodCidade = c.CodCidade
+		if rand.Float32() < c.TaxaImunidades {
+			c.População[i].Estado = 2
+		} else {
+			c.População[i].Estado = 0
+		}
+
+		c.População[i].Vizinhos = make([]*Pessoa, c.NumeroVizinhos)
 	}
 }
