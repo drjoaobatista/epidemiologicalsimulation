@@ -40,17 +40,9 @@ func (c *Cidade) SetVizinhos() {
 
 	if len(c.População) > 0 {
 		for i := range c.População {
-			for j := 1; j <= c.NumeroVizinhos/2; j++ {
-				if i-j < 0 {
-					c.População[i].Vizinhos[j-1] = &c.População[c.TamanhoPopulação+(i-j)]
-				} else {
-					c.População[i].Vizinhos[j-1] = &c.População[i-j]
-				}
-				if i+j >= c.TamanhoPopulação {
-					c.População[i].Vizinhos[j-1+c.NumeroVizinhos/2] = &c.População[-c.TamanhoPopulação+(i+j)]
-				} else {
-					c.População[i].Vizinhos[j-1+c.NumeroVizinhos/2] = &c.População[i+j]
-				}
+			for j := 0; j <= c.NumeroVizinhos-1; j++ {
+
+				c.População[i].Vizinhos[j] = &c.População[(i+j+1)%c.TamanhoPopulação]
 			}
 		}
 		for i := 0; i < c.NumeroTrocaVizinhos; i++ {
