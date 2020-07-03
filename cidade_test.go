@@ -1,6 +1,7 @@
 package epidemiologicalsimulation
 
 import (
+	"math"
 	"math/rand"
 	"runtime"
 	"testing"
@@ -14,6 +15,9 @@ func TestCidade(t *testing.T) {
 		NumeroVizinhos:   3,
 		Ciclo:            10,
 		P:                0.1,
+		F: func(n int) float32 {
+			return float32(1 - math.Pow((1-0.5), float64(n)))
+		},
 	}
 	// criando a populacao
 	aracaju.População = make([]Pessoa, aracaju.TamanhoPopulação)
@@ -63,6 +67,9 @@ func TestCidade2(t *testing.T) {
 		NumeroVizinhos:   3,
 		Ciclo:            10,
 		P:                float32(0.4),
+		F: func(n int) float32 {
+			return float32(1 - math.Pow((1-0.5), float64(n)))
+		},
 	}
 	// criando a populacao
 	aracaju.População = make([]Pessoa, aracaju.TamanhoPopulação)
@@ -87,6 +94,9 @@ func TestCidade3(t *testing.T) {
 		NumeroVizinhos:   3,
 		Ciclo:            10,
 		P:                float32(0.4),
+		F: func(n int) float32 {
+			return float32(1 - math.Pow((1-0.5), float64(n)))
+		},
 	}
 	// criando a populacao
 	aracaju.População = make([]Pessoa, aracaju.TamanhoPopulação)

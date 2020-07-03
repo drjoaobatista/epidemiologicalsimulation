@@ -2,6 +2,7 @@ package epidemiologicalsimulation
 
 import (
 	"log"
+	"math"
 	"math/rand"
 )
 
@@ -20,8 +21,11 @@ type Cidade struct {
 	MáximoVizinhos   int
 	MínimoVizinhos   int
 	MediaVizinhos    float32
+	F                func(int) float32
 	//numero de dias para a doença acabar matando ou imunizando a Pessoa
-	Ciclo int
+	Ciclo                 int
+	ProbabilidadeContagio []float32
+	Alpha                 float32
 }
 
 //Init calcula os parametros básicos da cidade
@@ -29,6 +33,7 @@ func (c *Cidade) Init() {
 	c.setPessoa()
 	c.SetVizinhos()
 	c.estatisticaVizinhos()
+	c.initProbabilidadeContagio()
 }
 
 //SetVizinhos configura os Vizinhos de cada Pessoa criando uma rede Modelo WS (Watts-Strogatz):
@@ -98,12 +103,12 @@ func (c *Cidade) propaga(data *int, probabilidade *[]float32, x chan int) {
 }
 
 //Propaga é um metodo que pormove a propagação da infeção usando o modelo de contato
-func (c *Cidade) Propaga(data *int, probabilidade *[]float32) {
+func (c *Cidade) Propaga(data *int) {
 
 	var dx, dy int
 	for i := range c.População {
 		if c.População[i].Estado == 0 {
-			dx += int(c.População[i].contato(data, probabilidade))
+			dx += int(c.População[i].contato(data, &c.ProbabilidadeContagio))
 		} else {
 			if c.População[i].Estado == 1 && (*data-c.População[i].Dia) > c.Ciclo {
 				c.População[i].Estado = 0
@@ -126,4 +131,17 @@ func (c *Cidade) setPessoa() {
 			c.Susceptivel++
 		}
 	}
+}
+
+func (c *Cidade) initProbabilidadeContagio() bool {
+	c.ProbabilidadeContagio = make([]float32, c.MáximoVizinhos)
+	if c.F == nil {
+		c.F = func(n int) float32 {
+			return float32(1 - math.Pow(float64(1-c.Alpha), float64(n)))
+		}
+	}
+	for i := range c.ProbabilidadeContagio {
+		c.ProbabilidadeContagio[i] = c.F(i)
+	}
+	return true
 }
