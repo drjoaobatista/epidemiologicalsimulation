@@ -6,30 +6,25 @@ import (
 	"testing"
 )
 
-func TestCidade(t *testing.T) { //#FIXME esse teste deveria dá errado mas dá correto.
-	//testando a inicializacao
+func TestCidade(t *testing.T) {
 	var aracaju = Cidade{
-		Nome:                "aracaju",
-		CodCidade:           1,
-		TamanhoPopulação:    10010,
-		NumeroVizinhos:      6,
-		Ciclo:               10,
-		NumeroTrocaVizinhos: 100,
+		Nome:             "aracaju",
+		CodCidade:        1,
+		TamanhoPopulação: 10010,
+		NumeroVizinhos:   3,
+		Ciclo:            10,
+		P:                0.1,
 	}
-	aracaju.Init()
 	// criando a populacao
 	aracaju.População = make([]Pessoa, aracaju.TamanhoPopulação)
-	// configurando as pessoas
-	aracaju.setPessoa()
-	// configurando os Vizinhos numa rede quadrada
-	aracaju.SetVizinhos()
+	aracaju.Init()
 	//contaminando primeira pessoa da cidade
 	aracaju.População[0].Estado = 1
 	aracaju.População[0].Dia = 0
 	aracaju.Contaminados = 1
 
 	//contruindo um vetor de probabilidade de teste
-	probabilidade := []float32{0, 0.3, 0.5, 0.1, 0.1, 0.1, 0.1, 0.1, 0.5, 0.1}
+	probabilidade := []float32{0, 0.3, 0.5, 0.1, 0.1, 0.1, 0.1, 0.1, 0.5, 0.1, 0.1}
 
 	//usando goruntimes
 	var numCPU = runtime.NumCPU()
@@ -50,8 +45,8 @@ func TestCidade(t *testing.T) { //#FIXME esse teste deveria dá errado mas dá c
 	}
 
 	obtido := aracaju.Contaminados
-	desejado := 10100
-	if obtido == desejado {
+	desejado := aracaju.Susceptivel
+	if obtido > desejado {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
 		t.Error(aracaju.População[1].Vizinhos[0].Vizinhos[0].contato(&data, &probabilidade))
 		t.Error(rand.Float32())
@@ -64,9 +59,10 @@ func TestCidade2(t *testing.T) {
 	var aracaju = Cidade{
 		Nome:             "aracaju",
 		CodCidade:        1,
-		TamanhoPopulação: 100,
-		NumeroVizinhos:   6,
+		TamanhoPopulação: 1000,
+		NumeroVizinhos:   3,
 		Ciclo:            10,
+		P:                float32(0.4),
 	}
 	// criando a populacao
 	aracaju.População = make([]Pessoa, aracaju.TamanhoPopulação)
@@ -75,34 +71,33 @@ func TestCidade2(t *testing.T) {
 	aracaju.População[0].Estado = 1
 	aracaju.População[0].Dia = 0
 	aracaju.Contaminados = 1
-
-	//contruindo um vetor de probabilidade de teste
-	probabilidade := []float32{0, 0.3, 0.5, 0, 0, 0, 0, 0, 05}
-
-	//usando goruntimes
-	var numCPU = runtime.NumCPU()
-	canal := make(chan int, numCPU)
-	var goroutines int
-	var data int
-	data = 1
-	for data := 0; data < 10; data++ {
-		go aracaju.propaga(&data, &probabilidade, canal)
-		goroutines++
-		if goroutines >= numCPU {
-			<-canal
-			goroutines--
-		}
-	}
-	for i := 0; i < goroutines; i++ {
-		<-canal
-	}
-
-	obtido := aracaju.Contaminados
-	desejado := 4
-	if obtido < desejado {
+	obtido := aracaju.MediaVizinhos
+	desejado := float32(6)
+	if obtido != desejado {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
-		t.Error(aracaju.População[1].Vizinhos[0].Vizinhos[0].contato(&data, &probabilidade))
-		t.Error(rand.Float32())
 	}
+}
 
+func TestCidade3(t *testing.T) {
+	//testando a inicializacao
+	var aracaju = Cidade{
+		Nome:             "aracaju",
+		CodCidade:        1,
+		TamanhoPopulação: 1000,
+		NumeroVizinhos:   3,
+		Ciclo:            10,
+		P:                float32(0.4),
+	}
+	// criando a populacao
+	aracaju.População = make([]Pessoa, aracaju.TamanhoPopulação)
+	aracaju.Init()
+	//contaminando primeira pessoa da cidade
+	aracaju.População[0].Estado = 1
+	aracaju.População[0].Dia = 0
+	aracaju.Contaminados = 1
+	obtido := aracaju.MáximoVizinhos
+	desejado := 11
+	if obtido != desejado {
+		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
+	}
 }

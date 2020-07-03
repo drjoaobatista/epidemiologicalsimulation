@@ -11,7 +11,7 @@ type Pessoa struct {
 	//Dia: da contato contado apartir do Dia 0 inicio da contato apenas 1 no Dia 0
 	Dia int
 	//array de apontadores para pessoas vizinhas
-	Vizinhos []*Pessoa //#TODO: deixar número de Vizinhos variaveis
+	Vizinhos []*Pessoa
 	//CodCidade é o local onde a Pessoa está
 	CodCidade uint8
 }
@@ -44,4 +44,14 @@ func (p *Pessoa) numeroVizinhosContaminados() uint8 {
 		}
 	}
 	return x
+}
+
+func (p *Pessoa) appendVizinho(novoViz *Pessoa) bool {
+	for viz := range p.Vizinhos {
+		if (p.Vizinhos[viz]) == novoViz {
+			return false
+		}
+	}
+	p.Vizinhos = append(p.Vizinhos, novoViz)
+	return true
 }

@@ -2,7 +2,6 @@ package epidemiologicalsimulation
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"math"
 	"math/rand"
@@ -44,19 +43,14 @@ func (m *Mundo) init() bool {
 	m.carregaDistânciasCidades()
 	m.initProbabilidadeContagio()
 	m.initProbabilidadeTroca()
-	for i := 0; i < m.NumeroCidades; i++ {
-		m.TamanhoPopulação += m.Cidades[i].Init()
-	}
 	//criando as pessoas do mundo
 	m.População = make([]Pessoa, m.TamanhoPopulação)
-
 	//distribuindo a populacao mundial nas Cidades
 	inicio := 0
 	for i := 0; i < m.NumeroCidades; i++ {
 		fim := int(m.Cidades[i].TamanhoPopulação) + inicio
 		m.Cidades[i].População = m.População[inicio:fim]
-		m.Cidades[i].SetVizinhos()
-		m.Cidades[i].setPessoa()
+		m.Cidades[i].Init()
 		inicio = int(fim)
 	}
 	return true
@@ -64,7 +58,7 @@ func (m *Mundo) init() bool {
 
 func (m *Mundo) carregaNomeCidades() bool {
 	if m.ArquivoNomesCidades == "" {
-		fmt.Println("Nome do arquivoNome")
+		log.Print("erro falta passar o nome do arquivoNome")
 		return false
 	} else {
 		arquivo, err := os.Open(m.ArquivoNomesCidades)
@@ -95,7 +89,7 @@ func (m *Mundo) carregaNomeCidades() bool {
 
 func (m *Mundo) carregaPopulaçãoCidades() bool {
 	if m.ArquivoPopulaçãoCidades == "" {
-		fmt.Println("Nome do ArquivoPopulaçãoCidades")
+		log.Print("erro falta passar o nome do ArquivoPopulaçãoCidades")
 		return false
 	} else {
 		arquivo, err := os.Open(m.ArquivoPopulaçãoCidades)
@@ -133,7 +127,7 @@ func (m *Mundo) carregaPopulaçãoCidades() bool {
 
 func (m *Mundo) carregaDistânciasCidades() bool {
 	if m.ArquivoDistanciasCidades == "" {
-		fmt.Println("Nome do arquivoNome")
+		log.Print("erro falta passar o nome do arquivoNome")
 		return false
 	} else {
 		arquivo, err := os.Open(m.ArquivoDistanciasCidades)
