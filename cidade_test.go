@@ -2,7 +2,6 @@ package epidemiologicalsimulation
 
 import (
 	"math"
-	"math/rand"
 	"runtime"
 	"testing"
 )
@@ -27,17 +26,12 @@ func TestCidade(t *testing.T) {
 	aracaju.População[0].Dia = 0
 	aracaju.Contaminados = 1
 
-	//contruindo um vetor de probabilidade de teste
-	probabilidade := []float32{0, 0.3, 0.5, 0.1, 0.1, 0.1, 0.1, 0.1, 0.5, 0.1, 0.1}
-
 	//usando goruntimes
 	var numCPU = runtime.NumCPU()
 	canal := make(chan int, numCPU)
 	var goroutines int
-	var data int
-	data = 1
 	for data := 0; data < 10; data++ {
-		go aracaju.propaga(&data, &probabilidade, canal)
+		go aracaju.propaga(&data, canal)
 		goroutines++
 		if goroutines >= numCPU {
 			<-canal
@@ -47,15 +41,11 @@ func TestCidade(t *testing.T) {
 	for i := 0; i < goroutines; i++ {
 		<-canal
 	}
-
 	obtido := aracaju.Contaminados
-	desejado := aracaju.Susceptivel
+	desejado := aracaju.TamanhoPopulação
 	if obtido > desejado {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
-		t.Error(aracaju.População[1].Vizinhos[0].Vizinhos[0].contato(&data, &probabilidade))
-		t.Error(rand.Float32())
 	}
-
 }
 
 func TestCidade2(t *testing.T) {

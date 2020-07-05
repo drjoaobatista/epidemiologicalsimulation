@@ -84,11 +84,11 @@ func (c *Cidade) estatisticaVizinhos() {
 	c.MediaVizinhos = float32(totalVizinhos) / float32(len(c.População))
 }
 
-func (c *Cidade) propaga(data *int, probabilidade *[]float32, x chan int) {
+func (c *Cidade) propaga(data *int, x chan int) {
 	var dx, dy int
 	for i := range c.População {
 		if c.População[i].Estado == 0 {
-			dx += int(c.População[i].contato(data, probabilidade))
+			dx += int(c.População[i].contato(data, &c.ProbabilidadeContagio))
 		} else {
 			if c.População[i].Estado == 1 && (*data-c.População[i].Dia) > c.Ciclo {
 				c.População[i].Estado = 2

@@ -18,7 +18,7 @@ type Pessoa struct {
 
 //contato execulta um passo markroviano
 func (p *Pessoa) contato(data *int, probabilidade *[]float32) uint8 {
-	var x uint8
+	var x, y uint8
 	for i := range p.Vizinhos {
 		if p.Vizinhos[i].Estado == 1 {
 			x++
@@ -28,10 +28,10 @@ func (p *Pessoa) contato(data *int, probabilidade *[]float32) uint8 {
 		if rand.Float32() < (*probabilidade)[x] {
 			p.Estado = 1
 			p.Dia = *data
-			return 1
+			y++
 		}
 	}
-	return 0
+	return y
 }
 
 func (p *Pessoa) numeroVizinhosContaminados() uint8 {

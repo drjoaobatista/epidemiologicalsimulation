@@ -41,7 +41,6 @@ func (m *Mundo) init() bool {
 	m.carregaNomeCidades()
 	m.carregaPopulaçãoCidades()
 	m.carregaDistânciasCidades()
-	m.initProbabilidadeContagio()
 	m.initProbabilidadeTroca()
 	//criando as pessoas do mundo
 	m.População = make([]Pessoa, m.TamanhoPopulação)
@@ -57,15 +56,16 @@ func (m *Mundo) init() bool {
 }
 
 func (m *Mundo) carregaNomeCidades() bool {
+	saida := true
 	if m.ArquivoNomesCidades == "" {
 		log.Print("erro falta passar o nome do arquivoNome")
-		return false
+		saida = false
 	} else {
 		arquivo, err := os.Open(m.ArquivoNomesCidades)
 		// Caso tenha encontrado algum erro ao tentar abrir o arquivo retorne o erro encontrado
 		if err != nil {
-			log.Fatalf("Erro ler nomes: %v", err)
-			return false
+			log.Print("Erro ler nomes")
+			saida = false
 		}
 		// Garante que o arquivo sera fechado apos o uso
 		defer arquivo.Close()
@@ -84,19 +84,21 @@ func (m *Mundo) carregaNomeCidades() bool {
 		m.Cidades[i].Nome = Nome
 		m.Cidades[i].Ciclo = m.Ciclo
 	}
-	return true
+
+	return saida
 }
 
 func (m *Mundo) carregaPopulaçãoCidades() bool {
+	saida := true
 	if m.ArquivoPopulaçãoCidades == "" {
 		log.Print("erro falta passar o nome do ArquivoPopulaçãoCidades")
-		return false
+		saida = false
 	} else {
 		arquivo, err := os.Open(m.ArquivoPopulaçãoCidades)
 		// Caso tenha encontrado algum erro ao tentar abrir o arquivo retorne o erro encontrado
 		if err != nil {
 			log.Fatalf("Erro ler nomes: %v", err)
-			return false
+			saida = false
 		}
 		// Garante que o arquivo sera fechado apos o uso
 		defer arquivo.Close()
@@ -114,27 +116,28 @@ func (m *Mundo) carregaPopulaçãoCidades() bool {
 		for i := range linhas {
 			pop, err := strconv.ParseInt(linhas[i], 10, 64)
 			if err != nil {
-				log.Fatalf("Erro: %v", err)
-				return false
+				log.Print("Erro para converter para inteiro as populacao das cidades")
+				saida = false
 			}
 			m.PopulaçãoCidades[i] = int(pop)
 			m.TamanhoPopulação += int(pop)
 			m.Cidades[i].TamanhoPopulação = int(pop)
 		}
 	}
-	return true
+	return saida
 }
 
 func (m *Mundo) carregaDistânciasCidades() bool {
+	saida := true
 	if m.ArquivoDistanciasCidades == "" {
 		log.Print("erro falta passar o nome do arquivoNome")
-		return false
+		saida = false
 	} else {
 		arquivo, err := os.Open(m.ArquivoDistanciasCidades)
 		// Caso tenha encontrado algum erro ao tentar abrir o arquivo retorne o erro encontrado
 		if err != nil {
 			log.Fatalf("Erro ler nomes: %v", err)
-			return false
+			saida = false
 		}
 		// Garante que o arquivo sera fechado apos o uso
 		defer arquivo.Close()
@@ -153,8 +156,8 @@ func (m *Mundo) carregaDistânciasCidades() bool {
 		for i := range linhas {
 			dist, err := strconv.ParseFloat(linhas[i], 32)
 			if err != nil {
-				log.Fatalf("Erro: %v", err)
-				return false
+				log.Print("Erro para converter as distancias para float")
+				saida = false
 			}
 			distância[i] = float32(dist)
 		}
@@ -170,18 +173,7 @@ func (m *Mundo) carregaDistânciasCidades() bool {
 			}
 		}
 	}
-	return true
-}
-
-//initProbabilidadeContagio inicaça a função de porbabilidade de contagio
-func (m *Mundo) initProbabilidadeContagio() bool {
-	p := make([]float32, m.NumeroVizinhos)
-	for i := range p {
-		p[i] = m.F(i)
-	}
-	m.ProbabilidadeContagio = make([]float32, m.NumeroVizinhos)
-	copy(m.ProbabilidadeContagio, p)
-	return true
+	return saida
 }
 
 func (m *Mundo) initProbabilidadeTroca() bool {
@@ -202,7 +194,6 @@ func (m *Mundo) initProbabilidadeTroca() bool {
 }
 
 //deslocaPessoas simula o deslocamento aleatório de pessoas
-// não pode ser paralelo por que usa a mesma memoria
 func (m *Mundo) deslocaPessoas() {
 	if m.Cidades == nil {
 		m.init()
@@ -256,7 +247,7 @@ func (m *Mundo) umDia() {
 	m.Data++
 	c := make(chan int, numCPU)
 	for i := 0; i < m.NumeroCidades; i++ {
-		go m.Cidades[i].propaga(&m.Data, &m.ProbabilidadeContagio, c)
+		go m.Cidades[i].propaga(&m.Data, c)
 		goroutines++
 		if goroutines >= numCPU {
 			<-c

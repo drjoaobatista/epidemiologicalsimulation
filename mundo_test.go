@@ -102,18 +102,6 @@ func TestInitMundo(t *testing.T) {
 	}
 }
 
-func TestInitProbabilidadeContagio(t *testing.T) {
-	obtido0 := sergipe.initProbabilidadeContagio()
-	obtido := sergipe.ProbabilidadeContagio[0]
-	desejado := float32(0.0)
-	if obtido != desejado {
-		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
-	}
-	if obtido0 != true {
-		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
-	}
-}
-
 func TestInitProbabilidadeTroca(t *testing.T) {
 	obtido0 := sergipe.initProbabilidadeTroca()
 	obtido := sergipe.ProbabilidadeTroca[0][0]
