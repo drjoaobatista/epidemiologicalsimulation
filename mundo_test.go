@@ -1,7 +1,6 @@
 package epidemiologicalsimulation
 
 import (
-	"log"
 	"math"
 	"testing"
 )
@@ -20,24 +19,6 @@ var sergipe = Mundo{
 	FTroca: func(x float32) float32 {
 		return float32(math.Exp(float64(-x)))
 	},
-}
-
-func TestLerTexto(t *testing.T) {
-	obtido, err := lerTexto("testeNomes.dat")
-	if err != nil {
-		log.Fatalf("Erro ler nomes: %v", err)
-	}
-	//desejado := []string{"Aracaju", "Lagarto"}
-	if obtido == nil {
-		t.Errorf("o valor obtido foi %v ", obtido)
-	}
-
-	obtido2 := len(obtido)
-	desejado := 2
-	if obtido2 != desejado {
-		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido2, desejado)
-	}
-
 }
 
 func TestCarregaNomesCidades(t *testing.T) {
