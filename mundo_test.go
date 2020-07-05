@@ -13,9 +13,8 @@ var sergipe = Mundo{
 	NumeroVizinhos:           5,
 	CidadeInicial:            "Aracaju",
 	Ciclo:                    10,
-	F: func(n int) float32 {
-		return float32(1 - math.Pow((1-0.5), float64(n)))
-	},
+	P:                        float32(0.2),
+	Alpha:                    float32(0.2),
 	FTroca: func(x float32) float32 {
 		return float32(math.Exp(float64(-x)))
 	},
@@ -118,8 +117,21 @@ func TestUmDia(t *testing.T) {
 	sergipe.contamine()
 	sergipe.umDia()
 	obtido := sergipe.Cidades[0].Contaminados
-	desejado := 43
+	desejado := 18
 	if obtido != desejado {
+		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
+	}
+}
+
+func TestUmAno(t *testing.T) {
+	sergipe.init()
+	sergipe.contamine()
+	for i := 0; i < 110; i++ { //#FIXME acontece um erro quando maior que 110
+		sergipe.umDia()
+	}
+	obtido := sergipe.Cidades[1].Contaminados
+	desejado := sergipe.Cidades[1].TamanhoPopulação
+	if obtido > desejado {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
 	}
 }

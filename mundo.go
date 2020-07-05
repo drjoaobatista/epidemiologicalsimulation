@@ -8,6 +8,7 @@ import (
 	"os"
 	"runtime"
 	"strconv"
+	"time"
 )
 
 //Mundo estura para armazenar rede longa distância
@@ -29,15 +30,16 @@ type Mundo struct {
 	TempoSimulação           int
 	NumeroVizinhos           int
 	Ciclo                    int
+	P                        float32 // valor para construçao da rede
+	Alpha                    float32 // valor da probabilidade de contagio
 
-	// funcao de probabilidade da contaminaçao
-	F func(int) float32
 	// funcao de probabilidade da contaminaçao
 	FTroca func(float32) float32
 }
 
 //init carrega do disco três arquivos com o Nome da Cidade e a População e as Distâncias
 func (m *Mundo) init() bool {
+	rand.Seed(time.Now().UnixNano())
 	m.carregaNomeCidades()
 	m.carregaPopulaçãoCidades()
 	m.carregaDistânciasCidades()
@@ -49,6 +51,10 @@ func (m *Mundo) init() bool {
 	for i := 0; i < m.NumeroCidades; i++ {
 		fim := int(m.Cidades[i].TamanhoPopulação) + inicio
 		m.Cidades[i].População = m.População[inicio:fim]
+		m.Cidades[i].P = m.P
+		m.Cidades[i].Alpha = m.Alpha
+		m.Cidades[i].Ciclo = m.Ciclo
+		m.Cidades[i].NumeroVizinhos = m.NumeroVizinhos
 		m.Cidades[i].Init()
 		inicio = int(fim)
 	}
@@ -236,4 +242,5 @@ func (m *Mundo) umDia() {
 	for i := 0; i < goroutines; i++ {
 		<-c
 	}
+	m.deslocaPessoas()
 }

@@ -85,20 +85,20 @@ func (c *Cidade) estatisticaVizinhos() {
 }
 
 func (c *Cidade) propaga(data *int, x chan int) {
-	var dx, dy int
+	var dx int
 	for i := range c.População {
 		if c.População[i].Estado == 0 {
 			dx += int(c.População[i].contato(data, &c.ProbabilidadeContagio))
 		} else {
 			if c.População[i].Estado == 1 && (*data-c.População[i].Dia) > c.Ciclo {
-				c.População[i].Estado = 2
+				c.População[i].Estado = 0
 				dx--
-				dy++
+
 			}
 		}
 	}
 	c.Contaminados += dx
-	c.MortosImmunes += dy
+
 	x <- 0
 }
 
@@ -110,7 +110,7 @@ func (c *Cidade) Propaga(data *int) {
 		if c.População[i].Estado == 0 {
 			dx += int(c.População[i].contato(data, &c.ProbabilidadeContagio))
 		} else {
-			if c.População[i].Estado == 1 && (*data-c.População[i].Dia) > c.Ciclo {
+			if c.População[i].Estado == 1 && (*data-c.População[i].Dia) > c.Ciclo { //#TODO passar para pessoa
 				c.População[i].Estado = 0
 				dx--
 				dy++
@@ -122,6 +122,7 @@ func (c *Cidade) Propaga(data *int) {
 }
 
 func (c *Cidade) setPessoa() {
+	c.TamanhoPopulação = len(c.População)
 	for i := range c.População {
 		c.População[i].CodCidade = c.CodCidade
 		if rand.Float32() < c.TaxaImunidades {
