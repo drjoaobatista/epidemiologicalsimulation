@@ -23,9 +23,11 @@ type Cidade struct {
 	MediaVizinhos    float32
 	F                func(int) float32
 	//numero de dias para a doença acabar matando ou imunizando a Pessoa
-	Ciclo                 int
+	Ciclo                 uint8
 	ProbabilidadeContagio []float32
 	Alpha                 float32
+	//Quarentena =0 sem quarentena, =1 quarentena
+	Quarentena int
 }
 
 //Init calcula os parametros básicos da cidade
@@ -90,7 +92,7 @@ func (c *Cidade) propaga(data *int, x chan int) {
 		if c.População[i].Estado == 0 {
 			dx += int(c.População[i].contato(data, &c.ProbabilidadeContagio))
 		} else {
-			if c.População[i].Estado == 1 && (*data-c.População[i].Dia) > c.Ciclo {
+			if c.População[i].Estado == 1 && (*data-c.População[i].Dia) > int(c.Ciclo) {
 				c.População[i].Estado = 0
 				dx--
 
@@ -110,7 +112,7 @@ func (c *Cidade) Propaga(data *int) {
 		if c.População[i].Estado == 0 {
 			dx += int(c.População[i].contato(data, &c.ProbabilidadeContagio))
 		} else {
-			if c.População[i].Estado == 1 && (*data-c.População[i].Dia) > c.Ciclo { //#TODO passar para pessoa
+			if c.População[i].Estado == 1 && (*data-c.População[i].Dia) > int(c.Ciclo) { //#TODO passar para pessoa
 				c.População[i].Estado = 0
 				dx--
 				dy++
@@ -125,6 +127,7 @@ func (c *Cidade) setPessoa() {
 	c.TamanhoPopulação = len(c.População)
 	for i := range c.População {
 		c.População[i].CodCidade = c.CodCidade
+		c.População[i].Ciclo = c.Ciclo
 		if rand.Float32() < c.TaxaImunidades {
 			c.População[i].Estado = 2
 		} else {
@@ -135,7 +138,7 @@ func (c *Cidade) setPessoa() {
 }
 
 func (c *Cidade) initProbabilidadeContagio() bool {
-	c.ProbabilidadeContagio = make([]float32, c.MáximoVizinhos)
+	c.ProbabilidadeContagio = make([]float32, c.MáximoVizinhos+1)
 	if c.F == nil {
 		c.F = func(n int) float32 {
 			return float32(1 - math.Pow(float64(1-c.Alpha), float64(n)))

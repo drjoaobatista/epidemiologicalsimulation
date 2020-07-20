@@ -10,6 +10,8 @@ type Pessoa struct {
 	Examinada uint8
 	//Dia: da contato contado apartir do Dia 0 inicio da contato apenas 1 no Dia 0
 	Dia int
+	//Ciclo tempo de duração da contaminação
+	Ciclo uint8
 	//array de apontadores para pessoas vizinhas
 	Vizinhos []*Pessoa
 	//CodCidade é o local onde a Pessoa está
@@ -17,18 +19,26 @@ type Pessoa struct {
 }
 
 //contato execulta um passo markroviano
-func (p *Pessoa) contato(data *int, probabilidade *[]float32) uint8 {
-	var x, y uint8
-	for i := range p.Vizinhos {
-		if p.Vizinhos[i].Estado == 1 {
-			x++
+func (p *Pessoa) contato(data *int, probabilidade *[]float32) int8 {
+	var x uint8
+	var y int8
+	if p.Estado == 0 {
+		for i := range p.Vizinhos {
+			if p.Vizinhos[i].Estado == 1 {
+				x++
+			}
+		}
+		if x > 0 {
+			if rand.Float32() < (*probabilidade)[x] {
+				p.Estado = 1
+				p.Dia = *data
+				y = 1
+			}
 		}
 	}
-	if x > 0 {
-		if rand.Float32() < (*probabilidade)[x] {
-			p.Estado = 1
-			p.Dia = *data
-			y++
+	if p.Estado == 1 {
+		if p.Dia-*data >= int(p.Ciclo) {
+			y = -1
 		}
 	}
 	return y

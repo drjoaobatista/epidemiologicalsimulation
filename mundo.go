@@ -29,21 +29,32 @@ type Mundo struct {
 	ArquivoDistanciasCidades string
 	TempoSimulação           int
 	NumeroVizinhos           int
-	Ciclo                    int
-	P                        float32 // valor para construçao da rede
-	Alpha                    float32 // valor da probabilidade de contagio
+	Ciclo                    uint8
+	//P = valor para construçao da rede
+	P float32
+	//Alpha= valor da probabilidade de contagio
+	Alpha        float32
+	Contaminados int
+	Quarentena   []int
 
 	// funcao de probabilidade da contaminaçao
 	FTroca func(float32) float32
 }
 
-//init carrega do disco três arquivos com o Nome da Cidade e a População e as Distâncias
-func (m *Mundo) init() bool {
+//Init carrega do disco três arquivos com o Nome da Cidade e a População e as Distâncias
+func (m *Mundo) Init() bool {
+	saida := true
 	rand.Seed(time.Now().UnixNano())
-	m.carregaNomeCidades()
-	m.carregaPopulaçãoCidades()
-	m.carregaDistânciasCidades()
-	m.initProbabilidadeTroca()
+	saida = m.carregaNomeCidades()
+	saida = m.carregaPopulaçãoCidades()
+	saida = m.carregaDistânciasCidades()
+	saida = m.initProbabilidadeTroca()
+
+	m.Quarentena = make([]int, m.NumeroCidades)
+	for i := range m.Quarentena {
+		m.Quarentena[i] = 1
+	}
+
 	//criando as pessoas do mundo
 	m.População = make([]Pessoa, m.TamanhoPopulação)
 	//distribuindo a populacao mundial nas Cidades
@@ -58,7 +69,8 @@ func (m *Mundo) init() bool {
 		m.Cidades[i].Init()
 		inicio = int(fim)
 	}
-	return true
+	m.contamine()
+	return saida
 }
 
 func (m *Mundo) carregaNomeCidades() bool {
@@ -202,11 +214,11 @@ func (m *Mundo) initProbabilidadeTroca() bool {
 //deslocaPessoas simula o deslocamento aleatório de pessoas
 func (m *Mundo) deslocaPessoas() {
 	if m.Cidades == nil {
-		m.init()
+		m.Init()
 	}
 	a := &m.População[rand.Intn(m.TamanhoPopulação)]
 	b := &m.População[rand.Intn(m.TamanhoPopulação)]
-	p := m.ProbabilidadeTroca[a.CodCidade][b.CodCidade]
+	p := m.ProbabilidadeTroca[a.CodCidade][b.CodCidade] * float32(m.Quarentena[a.CodCidade]*m.Quarentena[b.CodCidade])
 	if rand.Float32() < p {
 		a.Estado, b.Estado = b.Estado, a.Estado
 		a.Dia, b.Dia = b.Dia, a.Dia
@@ -225,8 +237,8 @@ func (m *Mundo) contamine() {
 	}
 }
 
-//umDia  execulta a Mundo de 1 passo de Monte Carlo
-func (m *Mundo) umDia() {
+//UmDia  execulta a Mundo de 1 passo de Monte Carlo
+func (m *Mundo) UmDia() {
 	var numCPU = runtime.NumCPU()
 	var goroutines int
 	m.Data++
@@ -242,5 +254,19 @@ func (m *Mundo) umDia() {
 	for i := 0; i < goroutines; i++ {
 		<-c
 	}
-	m.deslocaPessoas()
+	for i := 0; i < 1000; i++ {
+		m.deslocaPessoas()
+	}
+
+}
+
+//AtualizaDados  calcula as estatisticas de contaminados no mundo
+func (m *Mundo) AtualizaDados() {
+	m.Contaminados = 0
+	for i := range m.Cidades {
+		m.Contaminados += m.Cidades[i].Contaminados
+		if float32(m.Cidades[i].Contaminados)/float32(m.Cidades[i].TamanhoPopulação) > float32(0.001) {
+			m.Quarentena[i] = 0
+		}
+	}
 }

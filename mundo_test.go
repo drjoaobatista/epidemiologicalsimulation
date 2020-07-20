@@ -53,7 +53,7 @@ func TestCarregaDistânciasCidades(t *testing.T) {
 }
 
 func TestInitMundo(t *testing.T) {
-	obtido := sergipe.init()
+	obtido := sergipe.Init()
 	desejado := true
 	if obtido != desejado {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
@@ -103,8 +103,8 @@ func TestDeslocaPessoas(t *testing.T) {
 	}
 }
 func TestContamine(t *testing.T) {
-	sergipe.init()
-	sergipe.contamine()
+	sergipe.Init()
+
 	obtido := sergipe.Cidades[0].Contaminados
 	desejado := 1
 	if obtido != desejado {
@@ -113,9 +113,8 @@ func TestContamine(t *testing.T) {
 	}
 }
 func TestUmDia(t *testing.T) {
-	sergipe.init()
-	sergipe.contamine()
-	sergipe.umDia()
+	sergipe.Init()
+	sergipe.UmDia()
 	obtido := sergipe.Cidades[0].Contaminados
 	desejado := 18
 	if obtido != desejado {
@@ -124,14 +123,15 @@ func TestUmDia(t *testing.T) {
 }
 
 func TestUmAno(t *testing.T) {
-	sergipe.init()
-	sergipe.contamine()
+	sergipe.Init()
+
 	for i := 0; i < 110; i++ { //#FIXME acontece um erro quando maior que 110
-		sergipe.umDia()
+		sergipe.UmDia()
 	}
-	obtido := sergipe.Cidades[1].Contaminados
-	desejado := sergipe.Cidades[1].TamanhoPopulação
-	if obtido > desejado {
+	obtido := sergipe.Cidades[0].Contaminados
+	desejado := sergipe.Cidades[0].TamanhoPopulação
+	if obtido < desejado {
 		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
+
 	}
 }
