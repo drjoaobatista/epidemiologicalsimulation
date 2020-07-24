@@ -2,23 +2,23 @@ package epidemiologicalsimulation
 
 import "math/rand"
 
-//Pessoa tipo usado para representar cada individuo do modelo
+//Pessoa : tipo usado para representar cada indivíduo do modelo
 type Pessoa struct {
-	// Estado:susceptivel=0, contaminado=1, morto=2 ou imune=3, recuperado=4,
+	// Estado:susceptível=0, contaminado=1, morto=2 ou imune=3, recuperado=4,
 	Estado uint8
-	// atestado: sim =1 nao = 0
+	// Examinada: sim =1 não = 0
 	Examinada uint8
-	//Dia: da contato contado apartir do Dia 0 inicio da contato apenas 1 no Dia 0
+	//Dia: da contato contado a partir do Dia 0 início da contato apenas 1 no Dia 0
 	Dia int
-	//Ciclo tempo de duração da contaminação
+	//Ciclo: tempo de duração da contaminação
 	Ciclo uint8
-	//array de apontadores para pessoas vizinhas
+	//Vizinhos : Slices  de ponteiros  para pessoas vizinhas
 	Vizinhos []*Pessoa
 	//CodCidade é o local onde a Pessoa está
 	CodCidade uint8
 }
 
-//contato execulta um passo markroviano
+//contato executa um passo markoviano
 func (p *Pessoa) contato(data *int, probabilidade *[]float32) int8 {
 	var x uint8
 	var y int8
