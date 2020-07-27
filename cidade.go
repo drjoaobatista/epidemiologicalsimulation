@@ -17,12 +17,13 @@ type Cidade struct {
 	MortosImmunes    int
 	NumeroVizinhos   int
 	TaxaImunidades   float32
-	P                float32
-	MáximoVizinhos   int
-	MínimoVizinhos   int
-	MediaVizinhos    float32
-	F                func(int) float32
-	//número de dias para a doença acabar matando ou imunizando a "Pessoa"
+	// P contatante que define a estrura da rede, aleatória = 1
+	P              float32
+	MáximoVizinhos int
+	MínimoVizinhos int
+	MediaVizinhos  float32
+	F              func(int) float32
+	//Ciclo: número de dias para a doença acabar matando ou imunizando a "Pessoa"
 	Ciclo                 uint8
 	ProbabilidadeContagio []float32
 	Alpha                 float32
@@ -109,6 +110,7 @@ func (c *Cidade) Propaga(data *int) {
 func (c *Cidade) setPessoa() {
 	c.TamanhoPopulação = len(c.População)
 	for i := range c.População {
+		c.População[i].Vizinhos = nil
 		c.População[i].CodCidade = c.CodCidade
 		c.População[i].Ciclo = c.Ciclo
 		if rand.Float32() < c.TaxaImunidades {

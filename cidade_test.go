@@ -91,6 +91,8 @@ func TestCidade3(t *testing.T) {
 	// criando a populacao
 	aracaju.População = make([]Pessoa, aracaju.TamanhoPopulação)
 	aracaju.Init()
+	aracaju.Init()
+	aracaju.Init()
 	//contaminando primeira pessoa da cidade
 	aracaju.População[0].Estado = 1
 	aracaju.População[0].Dia = 0
