@@ -6,7 +6,7 @@ import (
 	"math/rand"
 )
 
-//Cidade rede mundo pequeno unidimesional
+//Cidade rede mundo pequeno unidimensional
 type Cidade struct {
 	Nome             string
 	CodCidade        uint8
@@ -22,7 +22,7 @@ type Cidade struct {
 	MínimoVizinhos   int
 	MediaVizinhos    float32
 	F                func(int) float32
-	//numero de dias para a doença acabar matando ou imunizando a Pessoa
+	//número de dias para a doença acabar matando ou imunizando a "Pessoa"
 	Ciclo                 uint8
 	ProbabilidadeContagio []float32
 	Alpha                 float32
@@ -88,24 +88,15 @@ func (c *Cidade) estatisticaVizinhos() {
 
 func (c *Cidade) propaga(data *int, x chan int) {
 	var dx int
-	for i := range c.População {
-
-		if c.População[i].Estado == 0 {
-			dx += int(c.População[i].contato(data, &c.ProbabilidadeContagio))
-		} else {
-			if c.População[i].Estado == 1 && (*data-c.População[i].Dia) > int(c.Ciclo) {
-				c.População[i].Estado = 0
-				dx--
-
-			}
-		}
+	for j := 0; j < c.TamanhoPopulação; j++ {
+		i := rand.Intn(c.TamanhoPopulação)
+		dx += int(c.População[i].contato(data, &c.ProbabilidadeContagio))
 	}
 	c.Contaminados += dx
-
 	x <- 0
 }
 
-//Propaga é um metodo que pormove a propagação da infeção usando o modelo de contato simples
+//Propaga é um método que promove a propagação da infecção usando o modelo de contato simples
 func (c *Cidade) Propaga(data *int) {
 	var dx int
 	for j := 0; j < c.TamanhoPopulação; j++ {
