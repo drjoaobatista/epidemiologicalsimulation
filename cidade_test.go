@@ -48,8 +48,38 @@ func TestCidade(t *testing.T) {
 	}
 }
 
+func TestCidade1(t *testing.T) {
+	var aracaju = Cidade{
+		Nome:             "aracaju",
+		CodCidade:        1,
+		TamanhoPopulação: 1000000,
+		NumeroVizinhos:   3,
+		Ciclo:            10,
+		P:                0.1,
+		F: func(n int) float32 {
+			return float32(1 - math.Pow((1-0.5), float64(n)))
+		},
+	}
+	// criando a populacao
+	aracaju.População = make([]Pessoa, aracaju.TamanhoPopulação)
+	aracaju.Init()
+	//contaminando primeira pessoa da cidade
+	aracaju.População[0].Estado = 1
+	aracaju.População[0].Dia = 0
+	aracaju.Contaminados = 1
+	//usando goruntimes
+	for data := 0; data < 100; data++ { //#FIXME quando coloca 10 dá erro porvavelmente porque a goroutine está manipulando o mesmo dado.
+		aracaju.Propaga(&data)
+	}
+	obtido := aracaju.Contaminados
+	desejado := aracaju.TamanhoPopulação
+	if obtido > desejado {
+		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
+	}
+}
+
 func TestCidade2(t *testing.T) {
-	//testando a inicializacao
+	//testando a inicialização
 	var aracaju = Cidade{
 		Nome:             "aracaju",
 		CodCidade:        1,

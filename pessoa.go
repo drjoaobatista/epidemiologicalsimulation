@@ -38,7 +38,7 @@ func (p *Pessoa) contato(data *int, probabilidade *[]float32) int8 {
 		}
 	}
 	if p.Estado == 1 {
-		if p.Dia-*data >= int(p.Ciclo) {
+		if (*data - p.Dia) >= int(p.Ciclo) {
 			p.Estado = 2
 			y = -1
 		}
