@@ -18,7 +18,7 @@ func TestCidade(t *testing.T) {
 			return float32(1 - math.Pow((1-0.5), float64(n)))
 		},
 	}
-	// criando a populacao
+	// criando a população
 	aracaju.População = make([]Pessoa, aracaju.TamanhoPopulação)
 	aracaju.Init()
 	//contaminando primeira pessoa da cidade
@@ -26,11 +26,11 @@ func TestCidade(t *testing.T) {
 	aracaju.População[0].Dia = 0
 	aracaju.Contaminados = 1
 
-	//usando goruntimes
+	//usando goroutines
 	var numCPU = runtime.NumCPU()
 	canal := make(chan int, numCPU)
 	var goroutines int
-	for data := 0; data < 100; data++ { //#FIXME quando coloca 10 dá erro porvavelmente porque a goroutine está manipulando o mesmo dado.
+	for data := 0; data < 100; data++ { //#FIXME quando coloca 10 dá erro provavelmente porque a goroutine está manipulando o mesmo dado.
 		go aracaju.propaga(&data, canal)
 		goroutines++
 		if goroutines >= numCPU {
@@ -60,15 +60,15 @@ func TestCidade1(t *testing.T) {
 			return float32(1 - math.Pow((1-0.5), float64(n)))
 		},
 	}
-	// criando a populacao
+	// criando a população
 	aracaju.População = make([]Pessoa, aracaju.TamanhoPopulação)
 	aracaju.Init()
 	//contaminando primeira pessoa da cidade
 	aracaju.População[0].Estado = 1
 	aracaju.População[0].Dia = 0
 	aracaju.Contaminados = 1
-	//usando goruntimes
-	for data := 0; data < 100; data++ { //#FIXME quando coloca 10 dá erro porvavelmente porque a goroutine está manipulando o mesmo dado.
+	//usando goroutines
+	for data := 0; data < 100; data++ { //#FIXME quando coloca 10 dá erro provavelmente porque a goroutine está manipulando o mesmo dado.
 		aracaju.Propaga(&data)
 	}
 	obtido := aracaju.Contaminados
@@ -91,7 +91,7 @@ func TestCidade2(t *testing.T) {
 			return float32(1 - math.Pow((1-0.5), float64(n)))
 		},
 	}
-	// criando a populacao
+	// criando a população
 	aracaju.População = make([]Pessoa, aracaju.TamanhoPopulação)
 	aracaju.Init()
 	//contaminando primeira pessoa da cidade
@@ -106,7 +106,7 @@ func TestCidade2(t *testing.T) {
 }
 
 func TestCidade3(t *testing.T) {
-	//testando a inicializacao
+	//testando a inicialização
 	var aracaju = Cidade{
 		Nome:             "aracaju",
 		CodCidade:        1,
@@ -118,7 +118,7 @@ func TestCidade3(t *testing.T) {
 			return float32(1 - math.Pow((1-0.5), float64(n)))
 		},
 	}
-	// criando a populacao
+	// criando a população
 	aracaju.População = make([]Pessoa, aracaju.TamanhoPopulação)
 	aracaju.Init()
 	aracaju.Init()
