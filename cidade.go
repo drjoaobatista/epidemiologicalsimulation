@@ -17,7 +17,7 @@ type Cidade struct {
 	MortosImmunes    int
 	NumeroVizinhos   int
 	TaxaImunidades   float32
-	// P contatante que define a estrura da rede, aleatória = 1
+	// P contatante que define a estrutura da rede, aleatória = 1
 	P              float32
 	MáximoVizinhos int
 	MínimoVizinhos int

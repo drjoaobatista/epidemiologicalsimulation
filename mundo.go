@@ -30,14 +30,14 @@ type Mundo struct {
 	TempoSimulação           int
 	NumeroVizinhos           int
 	Ciclo                    uint8
-	//P = valor para construçao da rede
+	//P = valor para construção da rede
 	P float32
 	//Alpha= valor da probabilidade de contagio
 	Alpha        float32
 	Contaminados int
 	Quarentena   []int
 
-	// funcao de probabilidade da contaminaçao
+	// função de probabilidade da contaminação
 	FTroca func(float32) float32
 }
 
@@ -134,7 +134,7 @@ func (m *Mundo) carregaPopulaçãoCidades() bool {
 		for i := range linhas {
 			pop, err := strconv.ParseInt(linhas[i], 10, 64)
 			if err != nil {
-				log.Print("Erro para converter para inteiro as populacao das cidades")
+				log.Print("Erro para converter para inteiro as população das cidades")
 				saida = false
 			}
 			m.PopulaçãoCidades[i] = int(pop)
@@ -265,7 +265,7 @@ func (m *Mundo) AtualizaDados() {
 	m.Contaminados = 0
 	for i := range m.Cidades {
 		m.Contaminados += m.Cidades[i].Contaminados
-		if float32(m.Cidades[i].Contaminados)/float32(m.Cidades[i].TamanhoPopulação) > float32(0.001) {
+		if float32(m.Cidades[i].Contaminados)/float32(m.Cidades[i].TamanhoPopulação) > float32(0.1) {
 			m.Quarentena[i] = 0
 		}
 	}
