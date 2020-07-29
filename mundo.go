@@ -1,5 +1,8 @@
 package epidemiologicalsimulation
 
+//#TODO criar grafo de transmissão entre cidades
+//#TODO normaçizar probabilidade de troca e acrescentar uma constante
+//#TODO estudar outros tipos de distribuição de probabiidade
 import (
 	"bufio"
 	"log"
@@ -11,7 +14,7 @@ import (
 	"time"
 )
 
-//Mundo estura para armazenar rede longa distância
+//Mundo estrutura para armazenar rede longa distância
 type Mundo struct {
 	NomesCidades             []string
 	PopulaçãoCidades         []int
@@ -36,7 +39,6 @@ type Mundo struct {
 	Alpha        float32
 	Contaminados int
 	Quarentena   []int
-
 	// função de probabilidade da contaminação
 	FTroca func(float32) float32
 }
@@ -57,7 +59,7 @@ func (m *Mundo) Init() bool {
 
 	//criando as pessoas do mundo
 	m.População = make([]Pessoa, m.TamanhoPopulação)
-	//distribuindo a populacao mundial nas Cidades
+	//distribuindo a população mundial nas Cidades
 	inicio := 0
 	for i := 0; i < m.NumeroCidades; i++ {
 		fim := int(m.Cidades[i].TamanhoPopulação) + inicio
@@ -85,7 +87,7 @@ func (m *Mundo) carregaNomeCidades() bool {
 			log.Print("Erro ler nomes")
 			saida = false
 		}
-		// Garante que o arquivo sera fechado apos o uso
+		// Garante que o arquivo será fechado apos o uso
 		defer arquivo.Close()
 		// Cria um scanner que lê cada linha do arquivo
 		scanner := bufio.NewScanner(arquivo)
@@ -211,7 +213,11 @@ func (m *Mundo) initProbabilidadeTroca() bool {
 	return true
 }
 
-//deslocaPessoas simula o deslocamento aleatório de pessoas
+// deslocaPessoas simula o deslocamento aleatório de pessoas entre as cidades
+// por simplicidade qualque pessoa tem igual probabilidade de deslocamento para qualque outra posição.
+// assim as cidades mais populosas tanto recebem quanto enviam pessoas com maior probabilidade
+// o que faz surgir uma rede livre de escala no deslocamento das pessoas.
+
 func (m *Mundo) deslocaPessoas() {
 	if m.Cidades == nil {
 		m.Init()
@@ -225,7 +231,7 @@ func (m *Mundo) deslocaPessoas() {
 	}
 }
 
-//contamine é uma funçao contamina uma Pessoa localizada na Cidade passada como parametro
+//contamine é uma função contamina uma Pessoa localizada na Cidade passada como parametro
 func (m *Mundo) contamine() {
 	for i := range m.Cidades {
 		if m.Cidades[i].Nome == m.CidadeInicial {
@@ -237,7 +243,8 @@ func (m *Mundo) contamine() {
 	}
 }
 
-//UmDia  execulta a Mundo de 1 passo de Monte Carlo
+//UmDia  executa 1 passo de Monte Carlo, que é um passo de propagação em cada cidade
+//seguido de n passo de permuta de pessoas entre cidades.
 func (m *Mundo) UmDia() {
 	var numCPU = runtime.NumCPU()
 	var goroutines int
