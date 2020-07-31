@@ -30,7 +30,7 @@ func TestCidade(t *testing.T) {
 	var numCPU = runtime.NumCPU()
 	canal := make(chan int, numCPU)
 	var goroutines int
-	for data := 0; data < 100; data++ { //#FIXME quando coloca 10 dá erro provavelmente porque a goroutine está manipulando o mesmo dado.
+	for data := 0; data < 100; data++ {
 		go aracaju.propaga(&data, canal)
 		goroutines++
 		if goroutines >= numCPU {
@@ -68,7 +68,7 @@ func TestCidade1(t *testing.T) {
 	aracaju.População[0].Dia = 0
 	aracaju.Contaminados = 1
 	//usando goroutines
-	for data := 0; data < 100; data++ { //#FIXME quando coloca 10 dá erro provavelmente porque a goroutine está manipulando o mesmo dado.
+	for data := 0; data < 100; data++ {
 		aracaju.Propaga(&data)
 	}
 	obtido := aracaju.Contaminados

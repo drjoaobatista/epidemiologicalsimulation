@@ -2,6 +2,8 @@ package epidemiologicalsimulation
 
 //#TODO criar grafo de transmissão entre cidades
 //#TODO normaçizar probabilidade de troca e acrescentar uma constante
+//#TODO usar firebase para guardar resultados
+//#TODO gerar gráficos usando go
 //#TODO estudar outros tipos de distribuição de probabiidade
 import (
 	"bufio"
@@ -36,17 +38,23 @@ type Mundo struct {
 	//P = valor para construção da rede
 	P float32
 	//Alpha= valor da probabilidade de contagio
-	Alpha        float32
+	Alpha float32
+	//Beta= contante usada no calculo da probabilidade troca
+	Beta         float32
 	Contaminados int
 	Quarentena   []int
 	// função de probabilidade da contaminação
 	FTroca func(float32) float32
+	Links  map[int][2]uint8
+	indice int
 }
 
 //Init carrega do disco três arquivos com o Nome da Cidade e a População e as Distâncias
 func (m *Mundo) Init() bool {
 	saida := true
 	rand.Seed(time.Now().UnixNano())
+	m.Links = make(map[int][2]uint8)
+	m.indice = 0
 	saida = m.carregaNomeCidades()
 	saida = m.carregaPopulaçãoCidades()
 	saida = m.carregaDistânciasCidades()
@@ -204,12 +212,27 @@ func (m *Mundo) initProbabilidadeTroca() bool {
 	for i := range m.ProbabilidadeTroca {
 		m.ProbabilidadeTroca[i] = make([]float32, m.NumeroCidades)
 	}
-	for i := 0; i < m.NumeroCidades; i++ {
-		for j := 0; j < m.NumeroCidades; j++ {
-			m.ProbabilidadeTroca[i][j] = m.FTroca(m.Distâncias[i][j])
+	if m.FTroca == nil {
+		max := float32(0.0)
+		for i := 0; i < m.NumeroCidades; i++ {
+			for j := 0; j < m.NumeroCidades; j++ {
+				if m.Distâncias[i][j] > max {
+					max = m.Distâncias[i][j]
+				}
+			}
+		}
+		for i := 0; i < m.NumeroCidades; i++ {
+			for j := 0; j < m.NumeroCidades; j++ {
+				m.ProbabilidadeTroca[i][j] = float32(math.Exp(float64(-m.Beta * m.Distâncias[i][j] / max)))
+			}
+		}
+	} else {
+		for i := 0; i < m.NumeroCidades; i++ {
+			for j := 0; j < m.NumeroCidades; j++ {
+				m.ProbabilidadeTroca[i][j] = m.FTroca(m.Distâncias[i][j])
+			}
 		}
 	}
-
 	return true
 }
 
@@ -218,16 +241,35 @@ func (m *Mundo) initProbabilidadeTroca() bool {
 // assim as cidades mais populosas tanto recebem quanto enviam pessoas com maior probabilidade
 // o que faz surgir uma rede livre de escala no deslocamento das pessoas.
 
-func (m *Mundo) deslocaPessoas() {
+func (m *Mundo) deslocaPessoas(n int) {
 	if m.Cidades == nil {
 		m.Init()
 	}
-	a := &m.População[rand.Intn(m.TamanhoPopulação)]
-	b := &m.População[rand.Intn(m.TamanhoPopulação)]
-	p := m.ProbabilidadeTroca[a.CodCidade][b.CodCidade] * float32(m.Quarentena[a.CodCidade]*m.Quarentena[b.CodCidade])
-	if rand.Float32() < p {
-		a.Estado, b.Estado = b.Estado, a.Estado
-		a.Dia, b.Dia = b.Dia, a.Dia
+	i := 0
+	for i < n {
+		a := &m.População[rand.Intn(m.TamanhoPopulação)]
+		b := &m.População[rand.Intn(m.TamanhoPopulação)]
+		if a.CodCidade != b.CodCidade {
+			i++
+			if a.Estado != b.Estado {
+				p := m.ProbabilidadeTroca[a.CodCidade][b.CodCidade] * float32(m.Quarentena[a.CodCidade]*m.Quarentena[b.CodCidade])
+				if rand.Float32() < p {
+					a.Estado, b.Estado = b.Estado, a.Estado
+					a.Dia, b.Dia = b.Dia, a.Dia
+					if a.Estado == 0 && b.Estado == 1 {
+						m.Links[m.indice] = [2]uint8{a.CodCidade, b.CodCidade}
+						m.Cidades[b.CodCidade].Contaminados++
+						m.Cidades[a.CodCidade].Contaminados--
+					}
+					if a.Estado == 1 && b.Estado == 0 {
+						m.Links[m.indice] = [2]uint8{a.CodCidade, b.CodCidade}
+						m.Cidades[a.CodCidade].Contaminados++
+						m.Cidades[b.CodCidade].Contaminados--
+					}
+					m.indice++
+				}
+			}
+		}
 	}
 }
 
@@ -251,8 +293,10 @@ func (m *Mundo) UmDia() {
 	m.Data++
 	c := make(chan int, numCPU)
 	for i := 0; i < m.NumeroCidades; i++ {
-		go m.Cidades[i].propaga(&m.Data, c)
-		goroutines++
+		if m.Cidades[i].Contaminados > 0 {
+			go m.Cidades[i].propaga(&m.Data, c)
+			goroutines++
+		}
 		if goroutines >= numCPU {
 			<-c
 			goroutines--
@@ -261,10 +305,7 @@ func (m *Mundo) UmDia() {
 	for i := 0; i < goroutines; i++ {
 		<-c
 	}
-	for i := 0; i < 1000; i++ {
-		m.deslocaPessoas()
-	}
-
+	m.deslocaPessoas(1000)
 }
 
 //AtualizaDados  calcula as estatisticas de contaminados no mundo
