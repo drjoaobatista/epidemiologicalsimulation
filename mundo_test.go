@@ -100,7 +100,7 @@ func TestInitProbabilidadeTroca(t *testing.T) {
 }
 
 func TestDeslocaPessoas(t *testing.T) {
-	sergipe.deslocaPessoas(10)
+	sergipe.Migrações()
 	obtido := 1
 	desejado := 1
 	if obtido != desejado {

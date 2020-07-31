@@ -40,9 +40,10 @@ type Mundo struct {
 	//Alpha= valor da probabilidade de contagio
 	Alpha float32
 	//Beta= contante usada no calculo da probabilidade troca
-	Beta         float32
-	Contaminados int
-	Quarentena   []int
+	Beta           float32
+	Contaminados   int
+	Quarentena     []int
+	MigraçãoDiaria int
 	// função de probabilidade da contaminação
 	FTroca func(float32) float32
 	Links  map[int][2]uint8
@@ -236,17 +237,16 @@ func (m *Mundo) initProbabilidadeTroca() bool {
 	return true
 }
 
-// deslocaPessoas simula o deslocamento aleatório de pessoas entre as cidades
+// Migrações simula o deslocamento aleatório de pessoas entre as cidades
 // por simplicidade qualque pessoa tem igual probabilidade de deslocamento para qualque outra posição.
 // assim as cidades mais populosas tanto recebem quanto enviam pessoas com maior probabilidade
 // o que faz surgir uma rede livre de escala no deslocamento das pessoas.
-
-func (m *Mundo) deslocaPessoas(n int) {
+func (m *Mundo) Migrações() {
 	if m.Cidades == nil {
 		m.Init()
 	}
 	i := 0
-	for i < n {
+	for i < m.MigraçãoDiaria {
 		a := &m.População[rand.Intn(m.TamanhoPopulação)]
 		b := &m.População[rand.Intn(m.TamanhoPopulação)]
 		if a.CodCidade != b.CodCidade {
@@ -305,10 +305,20 @@ func (m *Mundo) UmDia() {
 	for i := 0; i < goroutines; i++ {
 		<-c
 	}
-	m.deslocaPessoas(1000)
+	m.Migrações()
 }
 
 //AtualizaDados  calcula as estatisticas de contaminados no mundo
+func (m *Mundo) AtualizaDados() {
+	m.Contaminados = 0
+	for i := range m.Cidades {
+		m.Contaminados += m.Cidades[i].Contaminados
+		if float32(m.Cidades[i].Contaminados)/float32(m.Cidades[i].TamanhoPopulação) > float32(0.1) {
+			m.Quarentena[i] = 0
+		}
+	}
+}
+
 func (m *Mundo) AtualizaDados() {
 	m.Contaminados = 0
 	for i := range m.Cidades {
