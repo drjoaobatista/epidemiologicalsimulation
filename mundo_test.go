@@ -18,6 +18,8 @@ var sergipe = Mundo{
 	Ciclo:                    10,
 	P:                        float32(0.2),
 	Alpha:                    float32(0.2),
+	PExaminado:               0.01,
+
 	FTroca: func(x float32) float32 {
 		return float32(math.Exp(float64(-x)))
 	},
@@ -127,6 +129,16 @@ func TestUmDia(t *testing.T) {
 	}
 }
 
+func TestDecretaQuarentena(t *testing.T) {
+	sergipe.Init()
+	sergipe.UmDia()
+	sergipe.DecretaQuarentena()
+	obtido := 1
+	desejado := 1
+	if obtido != desejado {
+		t.Errorf("o valor obtido foi %v e o desejado foi %v", obtido, desejado)
+	}
+}
 func TestUmAno(t *testing.T) {
 	sergipe.Init()
 

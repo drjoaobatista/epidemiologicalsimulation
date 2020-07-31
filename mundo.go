@@ -45,9 +45,10 @@ type Mundo struct {
 	Quarentena     []int
 	MigraçãoDiaria int
 	// função de probabilidade da contaminação
-	FTroca func(float32) float32
-	Links  map[int][2]uint8
-	indice int
+	FTroca     func(float32) float32
+	Links      map[int][2]uint8
+	indice     int
+	PExaminado float64
 }
 
 //Init carrega do disco três arquivos com o Nome da Cidade e a População e as Distâncias
@@ -306,6 +307,7 @@ func (m *Mundo) UmDia() {
 		<-c
 	}
 	m.Migrações()
+	m.DecretaQuarentena()
 }
 
 //AtualizaDados  calcula as estatisticas de contaminados no mundo
@@ -313,18 +315,20 @@ func (m *Mundo) AtualizaDados() {
 	m.Contaminados = 0
 	for i := range m.Cidades {
 		m.Contaminados += m.Cidades[i].Contaminados
-		if float32(m.Cidades[i].Contaminados)/float32(m.Cidades[i].TamanhoPopulação) > float32(0.1) {
-			m.Quarentena[i] = 0
-		}
 	}
 }
 
-func (m *Mundo) AtualizaDados() {
-	m.Contaminados = 0
+//DecretaQuarentena analisa a probabilidade de encontrar algum doente #FIXME
+func (m *Mundo) DecretaQuarentena() {
 	for i := range m.Cidades {
-		m.Contaminados += m.Cidades[i].Contaminados
-		if float32(m.Cidades[i].Contaminados)/float32(m.Cidades[i].TamanhoPopulação) > float32(0.1) {
+		//aux := float32(1 - math.Pow(float64(1-m.PExaminado), float64(m.Cidades[i].Contaminados)))
+		//if rand.Float32() < aux {
+		//	m.Quarentena[i] = 0
+		//}
+		if float32(m.Cidades[i].Contaminados)/float32(m.Cidades[i].TamanhoPopulação) > float32(m.PExaminado) {
 			m.Quarentena[i] = 0
 		}
+
 	}
+
 }
